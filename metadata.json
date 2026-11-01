@@ -1,0 +1,10 @@
+{
+  "name": "Kampus Kit",
+  "description": "Sistem operasi perkuliahan super (all-in-one) untuk mahasiswa. Dilengkapi manajemen tugas, kalkulator IPK, AI Learning Path, Micro-Learning, generator sitasi, catatan cerdas, dan asisten AI bertenaga Gemini.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

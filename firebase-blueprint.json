@@ -1,0 +1,41 @@
+{
+  "collections": [
+    {
+      "name": "users",
+      "documentId": "userId",
+      "fields": [
+        { "name": "email", "type": "string", "required": true },
+        { "name": "createdAt", "type": "timestamp", "required": true }
+      ],
+      "subcollections": [
+        {
+          "name": "store",
+          "documentId": "key",
+          "fields": [
+            { "name": "value", "type": "string", "required": true },
+            { "name": "updatedAt", "type": "timestamp", "required": true }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gps_rooms",
+      "documentId": "roomId",
+      "fields": [
+        { "name": "roomId", "type": "string", "required": true },
+        { "name": "ownerUid", "type": "string", "required": true },
+        { "name": "members", "type": "array", "required": true },
+        { "name": "activeMembers", "type": "array", "required": false },
+        { "name": "joinCode", "type": "string", "required": false },
+        { "name": "primaryLocation", "type": "string", "required": false },
+        { "name": "secondaryLocation", "type": "string", "required": false },
+        { "name": "messages", "type": "string", "required": false },
+        { "name": "geofenceZones", "type": "string", "required": false },
+        { "name": "primaryName", "type": "string", "required": false },
+        { "name": "secondaryName", "type": "string", "required": false },
+        { "name": "updatedAt", "type": "timestamp", "required": false },
+        { "name": "createdAt", "type": "timestamp", "required": false }
+      ]
+    }
+  ]
+}
