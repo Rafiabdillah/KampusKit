@@ -14,6 +14,7 @@ export default tseslint.config(
       "release-build",
       "release-pkg",
       "release-win",
+      "release-out",
       ".tools",
     ],
   },
