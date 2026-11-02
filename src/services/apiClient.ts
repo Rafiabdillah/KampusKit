@@ -2,6 +2,21 @@ import { auth } from './firebase';
 
 export const GEMINI_STORAGE_KEY = 'gemini_custom_api_key';
 
+/**
+ * Optional absolute origin of the KampusKit API server.
+ * Empty for web/desktop builds (same-origin). Set VITE_API_BASE_URL when the
+ * static app is packaged natively (Android/iOS) and talks to a hosted server.
+ */
+export const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) || '').replace(/\/+$/, '');
+
+export function apiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+export function isNativeShell(): boolean {
+  return typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.();
+}
+
 let cachedAuthToken: string | null = null;
 
 // Track auth state to cache token for sync API calls

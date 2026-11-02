@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ChatMessage, Task, Course, Note, TaskStatus, FlashcardDeck, Flashcard, Priority, UserProfile, Transaction } from '../types';
 import { StorageService } from '../services/storage';
-import { getAiHeaders } from '../services/apiClient';
+import { getAiHeaders, apiUrl } from '../services/apiClient';
 import { audioService } from '../services/audio';
 import { QUOTES_DB } from './Motivation';
 import { 
@@ -701,7 +701,7 @@ export const OfflineAI: React.FC = () => {
           addMessage("Memory wiped! ✨", 'BOT');
        } else {
           try {
-            const res = await fetch("/api/chat", {
+            const res = await fetch(apiUrl("/api/chat"), {
               method: "POST",
               headers: getAiHeaders(),
               body: JSON.stringify({ 

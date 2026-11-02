@@ -1,5 +1,5 @@
 import { Course } from '../types';
-import { getAiHeaders } from './apiClient';
+import { API_BASE, apiUrl, getAiHeaders, isNativeShell } from './apiClient';
 
 export interface GenerateFlashcardsOptions {
   text?: string;
@@ -60,6 +60,9 @@ export class AIService {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       throw new Error('Perangkat Anda sedang offline (tanpa koneksi internet). Fitur AI ini memerlukan internet, namun seluruh data lokal Anda tetap aman dan dapat digunakan normal.');
     }
+    if (isNativeShell() && !API_BASE) {
+      throw new Error('Fitur AI belum tersambung ke server KampusKit pada build aplikasi ini. Seluruh fitur lokal (jadwal, tugas, catatan, IPK) tetap berfungsi normal. Gunakan versi web/desktop untuk fitur AI.');
+    }
   }
 
   static async analyzeScheduleImage(
@@ -70,7 +73,7 @@ export class AIService {
     AIService.ensureOnline();
     try {
       const response = await fetchAiWithTimeout(
-        '/api/vision',
+        apiUrl('/api/vision'),
         {
           method: 'POST',
           headers: getAiHeaders(),
@@ -111,7 +114,7 @@ export class AIService {
       const effectiveSignal = (typeof input === 'object' && input.signal) || options?.signal;
 
       const response = await fetchAiWithTimeout(
-        '/api/generate-flashcards',
+        apiUrl('/api/generate-flashcards'),
         {
           method: 'POST',
           headers: getAiHeaders(),
@@ -145,7 +148,7 @@ export class AIService {
     AIService.ensureOnline();
     try {
       const response = await fetchAiWithTimeout(
-        '/api/micro-learning-quiz',
+        apiUrl('/api/micro-learning-quiz'),
         {
           method: 'POST',
           headers: getAiHeaders(),
@@ -179,7 +182,7 @@ export class AIService {
     AIService.ensureOnline();
     try {
       const response = await fetchAiWithTimeout(
-        '/api/micro-learning',
+        apiUrl('/api/micro-learning'),
         {
           method: 'POST',
           headers: getAiHeaders(),
@@ -211,7 +214,7 @@ export class AIService {
     AIService.ensureOnline();
     try {
       const response = await fetchAiWithTimeout(
-        '/api/learning-path',
+        apiUrl('/api/learning-path'),
         {
           method: 'POST',
           headers: getAiHeaders(),
@@ -248,7 +251,7 @@ export class AIService {
     AIService.ensureOnline();
     try {
       const response = await fetchAiWithTimeout(
-        '/api/curriculum/generate',
+        apiUrl('/api/curriculum/generate'),
         {
           method: 'POST',
           headers: getAiHeaders(),

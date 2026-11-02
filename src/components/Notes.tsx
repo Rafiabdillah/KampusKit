@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Note } from '../types';
 import { StorageService } from '../services/storage';
-import { getAiHeaders } from '../services/apiClient';
+import { getAiHeaders, apiUrl } from '../services/apiClient';
 import { 
   Plus, Search, Trash2, Edit2, Save, X, Columns, Maximize2, Minimize2, 
   Folder, FolderPlus, Clock, ChevronRight, FileText, Download, Copy, Sparkles, 
@@ -694,7 +694,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
     const timeoutTimer = setTimeout(() => controller.abort(), 45000);
 
     try {
-      const res = await fetch("/api/notes/ai", {
+      const res = await fetch(apiUrl("/api/notes/ai"), {
         method: "POST",
         headers: getAiHeaders(),
         body: JSON.stringify({ 

@@ -3,7 +3,7 @@ import {
   Sparkles, Key, CheckCircle2, AlertTriangle, Eye, EyeOff, 
   ExternalLink, RefreshCw, Trash2, Check, ShieldCheck, HelpCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { getCustomGeminiKey, setCustomGeminiKey, getAiHeaders } from '../services/apiClient';
+import { getCustomGeminiKey, setCustomGeminiKey, getAiHeaders, apiUrl } from '../services/apiClient';
 
 interface GeminiSettingsCardProps {
   onKeySaved?: () => void;
@@ -48,7 +48,7 @@ export const GeminiSettingsCard: React.FC<GeminiSettingsCardProps> = ({ onKeySav
     setTestMessage('Menghubungi server Google Gemini...');
 
     try {
-      const res = await fetch('/api/test-gemini', {
+      const res = await fetch(apiUrl('/api/test-gemini'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

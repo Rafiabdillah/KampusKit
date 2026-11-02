@@ -1,11 +1,19 @@
 {
   "name": "kampuskit",
   "private": true,
-  "version": "3.3.1",
+  "version": "3.3.2",
+  "description": "KampusKit - asisten belajar mahasiswa: jadwal, tugas, catatan, dan AI study tools.",
+  "author": "Rafi Abdillah",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build:server": "esbuild server.ts --bundle --platform=node --format=cjs --external:vite --outfile=dist/server-pack.cjs",
+    "build:desktop": "npm run build && npm run build:server && electron-builder --win nsis",
+    "desktop": "electron .",
+    "android:sync": "npm run build && cap sync android",
+    "android:apk": "npm run android:sync && cd android && gradlew assembleDebug",
     "start": "node dist/server.cjs",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
@@ -15,6 +23,8 @@
     "@blocknote/core": "^0.54.0",
     "@blocknote/mantine": "^0.54.0",
     "@blocknote/react": "^0.54.0",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
     "@google/genai": "^2.10.0",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
@@ -33,6 +43,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.6.10",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
@@ -43,16 +54,67 @@
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
     "esbuild": "^0.28.1",
     "eslint": "^10.6.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "jsdom": "^30.0.1",
+    "png-to-ico": "^3.0.2",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.22.4",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.62.0",
     "vite": "^6.2.0",
     "vitest": "^5.0.5"
+  },
+  "build": {
+    "appId": "com.kampuskit.app",
+    "productName": "KampusKit",
+    "copyright": "Copyright © 2026 KampusKit",
+    "asar": true,
+    "npmRebuild": false,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/main.cjs",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "dist"
+      },
+      {
+        "from": "firebase-applet-config.json",
+        "to": "firebase-applet-config.json"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "KampusKit-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KampusKit",
+      "uninstallDisplayName": "KampusKit"
+    }
   }
 }
