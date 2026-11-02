@@ -566,7 +566,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors leading-snug">
               {activeCurriculum ? activeCurriculum.title : 'Metodologi Riset & Penulisan Skripsi'}
             </h3>
-            <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+            <p className="text-xs text-zinc-400 leading-relaxed">
               {activeCurriculum ? activeCurriculum.description : 'Sistem pembelajaran terstruktur berjenjang untuk mendalami materi sains kuliah dan karakter pribadi.'}
             </p>
           </div>

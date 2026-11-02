@@ -883,7 +883,7 @@ export default function App() {
 
         {/* 📱 MOBILE (HP) TOP HEADER BAR */}
         {isMobile && (
-          <header className="flex-shrink-0 h-14 bg-zinc-950/85 backdrop-blur-xl border-b border-white/[0.06] px-3.5 flex items-center justify-between z-20">
+          <header className="flex-shrink-0 h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] bg-zinc-950/85 backdrop-blur-xl border-b border-white/[0.06] pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] flex items-center justify-between z-20">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-primary/12 text-primary flex items-center justify-center flex-shrink-0 border border-primary/20">
                 <ActiveIcon size={16} />
@@ -1071,7 +1071,7 @@ export default function App() {
         )}
         
         {/* Main Dynamic View Content */}
-        <div ref={contentScrollRef} className={`flex-1 overflow-y-auto custom-scrollbar ${isMobile ? 'pt-4 pb-36 px-3.5 sm:px-6' : 'px-6 py-6 xl:px-8 xl:py-8'} max-w-[1680px] mx-auto w-full relative`}>
+        <div ref={contentScrollRef} className={`flex-1 overflow-y-auto custom-scrollbar ${isMobile ? 'pt-4 pb-[calc(11.5rem+env(safe-area-inset-bottom,0px))] pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] sm:pl-6 sm:pr-6' : 'px-6 pt-6 pb-[7.5rem] xl:px-8 xl:pt-8 xl:pb-[8rem]'} max-w-[1680px] mx-auto w-full relative`}>
            <React.Suspense fallback={
              <div className="flex h-full w-full min-h-[300px] items-center justify-center">
                <div className="flex flex-col items-center gap-3">
@@ -1087,7 +1087,7 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="h-full"
+                  className="min-h-full"
                 >
                   <ViewErrorBoundary currentView={currentView} onReset={() => handleSetView('dashboard')}>
                     {renderContent()}
@@ -1098,7 +1098,7 @@ export default function App() {
         </div>
 
         {/* Floating Action Button (Mobile/Tablet/Desktop) */}
-        <div className={`absolute ${isMobile ? 'right-4 bottom-24' : 'right-8 bottom-8'} z-40 flex flex-col items-end gap-3 pointer-events-none`}>
+        <div className={`absolute ${isMobile ? 'right-[max(1rem,env(safe-area-inset-right,0px))] bottom-[calc(6rem+env(safe-area-inset-bottom,0px))]' : 'right-8 bottom-8'} z-40 flex flex-col items-end gap-3 pointer-events-none`}>
            <div className="pointer-events-auto flex flex-col items-end gap-3">
              {showFabMenu && (
                <div className="flex flex-col items-end gap-2.5 animate-slide-up">

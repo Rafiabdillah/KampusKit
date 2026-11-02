@@ -221,9 +221,9 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   return (
     <div className="min-h-full w-full flex flex-col items-center justify-center p-4 animate-fade-in relative overflow-hidden">
       {/* Ambient Background Glow */}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-[100px] transition-all duration-1000 -z-10 ${isActive ? (mode === 'FOCUS' ? 'bg-primary/20' : 'bg-green-500/20') : 'bg-transparent'}`}></div>
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-[100px] transition-all duration-1000 -z-10 pointer-events-none ${isActive ? (mode === 'FOCUS' ? 'bg-primary/20' : 'bg-green-500/20') : 'bg-transparent'}`}></div>
 
-      <div className="glass-card p-8 rounded-[40px] w-full max-w-md shadow-2xl relative flex flex-col items-center">
+      <div className="glass-card p-5 sm:p-8 rounded-[40px] w-full max-w-md shadow-2xl relative flex flex-col items-center">
         
         {/* Toggle Mode Pills */}
         <div className="flex bg-slate-900/50 p-1 rounded-full mb-8 border border-white/5">
@@ -243,7 +243,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
         {/* Circular Timer Visual */}
         <div className="relative mb-8 group">
-           <svg width="300" height="300" className="transform -rotate-90">
+           <svg viewBox="0 0 300 300" className="w-full max-w-[300px] h-auto transform -rotate-90">
               {/* Track */}
               <circle 
                 cx="150" cy="150" r={radius} 
@@ -263,7 +263,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
            
            {/* Center Text */}
            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="text-6xl font-black text-white font-mono tracking-tighter drop-shadow-lg">
+              <div className="text-5xl sm:text-6xl font-black text-white font-mono tracking-tighter drop-shadow-lg">
                  {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
               </div>
               <p className={`text-sm font-bold mt-2 uppercase tracking-widest ${isActive ? 'animate-pulse' : 'opacity-50'} ${mode === 'FOCUS' ? 'text-primary' : 'text-green-400'}`}>

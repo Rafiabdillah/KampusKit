@@ -1948,7 +1948,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
       {/* Floating AI Loading Spinner */}
       {isAiLoading && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-zinc-900/95 border border-purple-500/40 rounded-2xl shadow-2xl backdrop-blur-md animate-fade-in text-xs text-white">
+        <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] right-[max(1.5rem,env(safe-area-inset-right,0px))] md:bottom-6 md:right-6 z-50 flex items-center gap-3 px-4 py-3 bg-zinc-900/95 border border-purple-500/40 rounded-2xl shadow-2xl backdrop-blur-md animate-fade-in text-xs text-white">
           <Sparkles className="animate-spin text-purple-400 shrink-0" size={20} />
           <div>
             <p className="font-semibold text-purple-200">AI Sedang Bekerja...</p>

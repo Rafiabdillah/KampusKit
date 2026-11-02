@@ -422,7 +422,7 @@ export const SportsRoutine: React.FC = () => {
         <div className="space-y-4">
            {/* Quote Daily */}
            <div className="glass-card p-5 rounded-2xl border border-white/5 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
               <Quote className="text-primary/40 mb-3" size={24} />
               <p className="text-sm text-zinc-300 font-medium italic leading-relaxed relative z-10">
                 "{randomQuote}"

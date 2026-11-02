@@ -144,17 +144,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, onAddTask }) 
       {/* Main Calendar Area */}
       <div className="flex-1 flex flex-col bg-card border border-slate-700 rounded-3xl overflow-hidden shadow-2xl">
          {/* Header */}
-         <div className="p-6 flex justify-between items-center bg-slate-900/50 border-b border-white/5">
-            <div className="flex items-center gap-4">
-               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <CalendarDays className="text-primary"/>
-                  {monthNames[currentDate.getMonth()]} <span className="text-slate-500 font-light">{currentDate.getFullYear()}</span>
+         <div className="p-4 sm:p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-slate-900/50 border-b border-white/5">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+               <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 min-w-0">
+                  <CalendarDays className="text-primary shrink-0"/>
+                  <span className="truncate">{monthNames[currentDate.getMonth()]}</span> <span className="text-slate-500 font-light shrink-0">{currentDate.getFullYear()}</span>
                </h2>
             </div>
-            <div className="flex gap-2">
-               <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-full text-slate-300 transition-colors"><ChevronLeft/></button>
+            <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-1.5 sm:gap-2">
+               <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-full text-slate-300 transition-colors" aria-label="Bulan sebelumnya"><ChevronLeft/></button>
                <button onClick={() => setCurrentDate(new Date())} className="px-4 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors">Hari Ini</button>
-               <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-full text-slate-300 transition-colors"><ChevronRight/></button>
+               <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-full text-slate-300 transition-colors" aria-label="Bulan berikutnya"><ChevronRight/></button>
             </div>
          </div>
 

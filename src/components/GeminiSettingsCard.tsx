@@ -79,22 +79,22 @@ export const GeminiSettingsCard: React.FC<GeminiSettingsCardProps> = ({ onKeySav
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-5 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl text-primary border border-primary/30">
-            <Sparkles size={24} className="text-primary" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-5 mb-6">
+        <div className="min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2.5 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl text-primary border border-primary/30 shrink-0">
+              <Sparkles size={24} className="text-primary" />
+            </div>
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
               <h3 className="text-lg font-bold text-white">Koneksi Google Gemini AI</h3>
               <span className="px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase rounded-full bg-primary/10 text-primary border border-primary/30">
                 Official API
               </span>
             </div>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Hubungkan akun Google Gemini milik Anda untuk fitur asisten cerdas, pemformat catatan, & flashcard.
-            </p>
           </div>
+          <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+            Hubungkan akun Google Gemini milik Anda untuk fitur asisten cerdas, pemformat catatan, & flashcard.
+          </p>
         </div>
 
         {/* Current status pill */}
@@ -116,7 +116,7 @@ export const GeminiSettingsCard: React.FC<GeminiSettingsCardProps> = ({ onKeySav
       {/* Key Input Section */}
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-zinc-300 mb-2 flex items-center justify-between">
+          <label className="block text-xs font-semibold text-zinc-300 mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
             <span className="flex items-center gap-1.5">
               <Key size={14} className="text-primary" />
               Gemini API Key (Google AI Studio)
@@ -201,7 +201,7 @@ export const GeminiSettingsCard: React.FC<GeminiSettingsCardProps> = ({ onKeySav
           <button
             type="button"
             onClick={() => setShowGuide(!showGuide)}
-            className="px-3 py-2 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5 ml-auto transition-colors"
+            className="px-3 py-2 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5 sm:ml-auto transition-colors"
           >
             <HelpCircle size={14} />
             <span>Cara Mendapatkan Kunci</span>

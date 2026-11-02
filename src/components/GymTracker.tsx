@@ -386,7 +386,7 @@ const GymTrackerInner: React.FC = () => {
 
       {/* Floating Rest Timer */}
       {isResting && (
-        <div className="fixed bottom-24 right-6 md:bottom-10 md:right-10 z-[60] bg-zinc-950/90 backdrop-blur-xl border-2 border-orange-500/80 rounded-3xl p-4 shadow-[0_0_40px_rgba(249,115,22,0.4)] animate-slide-up flex items-center gap-4">
+        <div className="fixed bottom-24 right-[max(1.5rem,env(safe-area-inset-right,0px))] md:bottom-10 md:right-10 z-[60] bg-zinc-950/90 backdrop-blur-xl border-2 border-orange-500/80 rounded-3xl p-4 shadow-[0_0_40px_rgba(249,115,22,0.4)] animate-slide-up flex items-center gap-4">
            <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center relative">
              <svg className="absolute inset-0 w-full h-full -rotate-90">
                 <circle cx="24" cy="24" r="22" stroke="rgba(255,255,255,0.1)" strokeWidth="4" fill="none" />

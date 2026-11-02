@@ -659,10 +659,10 @@ export const LifeCompass: React.FC = () => {
 
     return (
       <div className={`rounded-2xl border overflow-hidden ${colorClass} ${bgClass} mb-6 transition-all duration-300`}>
-        <div className={`p-4 border-b ${colorClass} bg-opacity-20 flex items-center gap-3`}>
+        <div className={`p-4 border-b ${colorClass} bg-opacity-20 flex flex-wrap items-center gap-2 sm:gap-3`}>
           {icon}
-          <h3 className="text-xl font-bold text-white">{title}</h3>
-          <span className="ml-auto text-xs font-bold opacity-70 bg-black/20 px-2 py-1 rounded-full">{items.length} Item</span>
+          <h3 className="min-w-0 text-lg sm:text-xl font-bold text-white">{title}</h3>
+          <span className="ml-auto shrink-0 text-xs font-bold opacity-70 bg-black/20 px-2 py-1 rounded-full">{items.length} Item</span>
         </div>
         <div className="p-4 grid gap-4">
           {items.map(item => {
@@ -682,7 +682,7 @@ export const LifeCompass: React.FC = () => {
                       </span>
                       {isPinned && <span className="text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><Pin size={10} fill="currentColor"/> Fokus</span>}
                     </div>
-                    <h4 className="font-bold text-slate-100 text-lg mb-1 group-hover:text-primary transition-colors">{item.title}</h4>
+                    <h4 className="font-bold text-slate-100 text-lg mb-1 break-words group-hover:text-primary transition-colors">{item.title}</h4>
                     <p className="text-sm text-slate-400 leading-snug pr-8">{item.desc}</p>
                   </div>
                   <div className="flex flex-col gap-2 items-center">
@@ -776,7 +776,7 @@ export const LifeCompass: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid gap-6 lg:grid-cols-2">
         {renderSection(
           "HARUS DILAKUKAN (Wajib/Non-Negotiable)", 
           'MUST', 

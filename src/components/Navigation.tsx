@@ -176,8 +176,8 @@ export const Navigation: React.FC<NavigationProps> = ({
               className="fixed inset-0 z-[200] bg-zinc-950 flex flex-col"
             >
               {/* Drawer Top Header */}
-              <div className="flex h-16 items-center justify-between px-4 border-b border-white/[0.06] bg-zinc-950/95">
-                <div className="flex items-center gap-3">
+              <div className="flex h-[calc(4rem+env(safe-area-inset-top,0px))] items-center justify-between border-b border-white/[0.06] bg-zinc-950/95 pt-[env(safe-area-inset-top,0px)] pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))]">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shadow-md shadow-black/30 text-lg overflow-hidden ${userProfile?.usePhotoAsLogo && userProfile?.photo ? '' : (userProfile?.appIconColor || 'bg-gradient-to-br from-primary to-indigo-500')}`}>
                     {renderAppIcon()}
                   </div>
@@ -250,7 +250,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
               
               {/* Scrollable Categories and Items */}
-              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-5 pb-24">
+              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-5 pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
                 {filteredMobileGroups.map((group, idx) => {
                   const isCollapsed = collapsedGroups.includes(group.title) && !mobileSearchQuery;
                   return (
@@ -367,7 +367,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         </AnimatePresence>
 
         {/* Floating bottom dock */}
-        <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2 pointer-events-none">
+        <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))] pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2 pointer-events-none">
           <nav className="pointer-events-auto flex w-full max-w-md items-center gap-1 rounded-2xl border border-white/10 bg-zinc-950/90 p-1.5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.95)] backdrop-blur-xl">
             {mobileItems.map((item) => {
               const isActive = currentView === item.id && !isMobileMenuOpen;

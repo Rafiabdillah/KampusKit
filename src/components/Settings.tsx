@@ -500,7 +500,7 @@ export const Settings: React.FC = () => {
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {auth.currentUser && (
               <>
                 <button 
@@ -1815,7 +1815,7 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* Save Actions */}
-      <div className="sticky bottom-4 z-40 flex justify-end">
+      <div className="flex justify-end">
         <button 
             onClick={handleSave}
             className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-xl border border-white/10 ${isSaved ? 'bg-green-600 text-white' : 'bg-primary/90 hover:bg-primary text-white shadow-primary/25'}`}

@@ -1221,10 +1221,10 @@ ${activeChapter.reflectionPrompt}
 
                 {/* Title & Desc */}
                 <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                  <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors leading-snug">
                     {curr.title}
                   </h3>
-                  <p className="text-xs text-zinc-400 line-clamp-3 mt-1.5 leading-relaxed">
+                  <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
                     {curr.description}
                   </p>
                 </div>
