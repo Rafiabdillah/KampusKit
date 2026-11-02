@@ -12,6 +12,8 @@ import { NotificationService } from '../services/notifications';
 import { GeminiSettingsCard } from './GeminiSettingsCard';
 import { BackgroundPermissionModal } from './BackgroundPermissionModal';
 import { CrossPlatformInstallModal } from './CrossPlatformInstallModal';
+import { CloudLoginNotice } from './CloudLoginNotice';
+import { CLOUD_LOGIN_NATIVE_MESSAGE, describeAuthError, isCloudLoginAvailable } from '../services/authSupport';
 import { useDevicePlatform } from '../hooks/useDevicePlatform';
 import { backgroundService, BackgroundServiceState } from '../services/backgroundService';
 import { AppLanguage, TRANSLATIONS } from '../utils/translations';
@@ -49,6 +51,9 @@ export const Settings: React.FC = () => {
   const [formData, setFormData] = useState<UserProfile>(userProfile);
   const [isSaved, setIsSaved] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const cloudLoginAvailable = isCloudLoginAvailable();
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isBackgroundModalOpen, setIsBackgroundModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
@@ -116,6 +121,24 @@ export const Settings: React.FC = () => {
       alert(`Gagal mencadangkan data: ${e?.message || 'Koneksi bermasalah'}`);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoginError(null);
+    if (!cloudLoginAvailable) {
+      setLoginError(CLOUD_LOGIN_NATIVE_MESSAGE);
+      return;
+    }
+    setIsLoggingIn(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      setLoginError(describeAuthError(e));
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -498,29 +521,36 @@ export const Settings: React.FC = () => {
                 </button>
               </>
             )}
-            <button 
-              onClick={async () => {
-                if (auth.currentUser) {
-                  if (confirm('Keluar dari akun? Pelacakan GPS akan dihentikan dan data akun pada perangkat ini akan dibersihkan demi keamanan (pengaturan bahasa & tema tetap tersimpan).')) {
-                    StorageService.clearUserData(true);
-                    await signOut(auth);
-                    window.location.reload();
+            {(auth.currentUser || cloudLoginAvailable) && (
+              <button 
+                onClick={async () => {
+                  if (auth.currentUser) {
+                    if (confirm('Keluar dari akun? Pelacakan GPS akan dihentikan dan data akun pada perangkat ini akan dibersihkan demi keamanan (pengaturan bahasa & tema tetap tersimpan).')) {
+                      StorageService.clearUserData(true);
+                      await signOut(auth);
+                      window.location.reload();
+                    }
+                  } else {
+                    await handleGoogleLogin();
                   }
-                } else {
-                  try {
-                    await signInWithPopup(auth, googleProvider);
-                    window.location.reload();
-                  } catch (e) {
-                    console.error(e);
-                    alert("Gagal login dengan Google.");
-                  }
-                }
-              }}
-              className={`px-4 py-2 rounded-lg font-bold transition-colors ${auth.currentUser ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white text-zinc-900 hover:bg-zinc-200'}`}
-            >
-              {auth.currentUser ? 'Keluar' : 'Login dengan Google'}
-            </button>
+                }}
+                disabled={!auth.currentUser && isLoggingIn}
+                className={`px-4 py-2 rounded-lg font-bold transition-colors disabled:opacity-60 ${auth.currentUser ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white text-zinc-900 hover:bg-zinc-200'}`}
+              >
+                {auth.currentUser ? 'Keluar' : (isLoggingIn ? 'Menghubungkan...' : 'Login dengan Google')}
+              </button>
+            )}
           </div>
+          {!auth.currentUser && !cloudLoginAvailable && (
+            <div className="mt-3">
+              <CloudLoginNotice />
+            </div>
+          )}
+          {loginError && !auth.currentUser && (
+            <div className="mt-3 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs leading-relaxed text-red-300">
+              {loginError}
+            </div>
+          )}
         </div>
       </div>
 

@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { auth, db, signInWithPopup, googleProvider } from '../services/firebase';
+import { CLOUD_LOGIN_NATIVE_MESSAGE, describeAuthError, isCloudLoginAvailable } from '../services/authSupport';
 import { doc, setDoc, getDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { StorageService } from '../services/storage';
 import { useStore } from '../store/useStore';
@@ -1077,11 +1078,15 @@ export const LocationTracker: React.FC = () => {
 
   // Google Login
   const handleGoogleSignIn = async () => {
+    if (!isCloudLoginAvailable()) {
+      alert(CLOUD_LOGIN_NATIVE_MESSAGE);
+      return;
+    }
     setIsAuthLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (error: any) {
-      alert("Gagal login dengan Google: " + (error?.message || "Coba lagi"));
+    } catch (error) {
+      alert("Gagal login dengan Google: " + describeAuthError(error));
     } finally {
       setIsAuthLoading(false);
     }

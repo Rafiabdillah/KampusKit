@@ -1,7 +1,7 @@
 {
   "name": "kampuskit",
   "private": true,
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "KampusKit - asisten belajar mahasiswa: jadwal, tugas, catatan, dan AI study tools.",
   "author": "Rafi Abdillah",
   "type": "module",
