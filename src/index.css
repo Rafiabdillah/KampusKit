@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+@theme inline {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-serif: 'Merriweather', serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -41,13 +41,29 @@
   --color-dark: 9 9 11;          /* Pure Black */
   --color-card: 28 28 30;        /* Deep Gray */
   --app-bg: #09090b;
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-bg: rgba(25, 25, 25, 0.5);
-  --glass-blur: 40px;
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-bg: rgba(24, 24, 27, 0.72);
+  --glass-blur: 20px;
   --sat: env(safe-area-inset-top, 0px);
   --sar: env(safe-area-inset-right, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
+
+  /* Structured surface scale — keeps every module on the same rhythm */
+  --surface-0: #09090b;
+  --surface-1: #0f0f12;
+  --surface-2: #151519;
+  --surface-3: #1c1c21;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.13);
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 12px 32px -20px rgba(0, 0, 0, 0.9);
+  --shadow-pop: 0 20px 50px -24px rgba(0, 0, 0, 0.95);
 }
 
 * {
@@ -57,7 +73,7 @@
 
 body {
   background-color: rgb(var(--color-dark, 9 9 11));
-  color: #f4f4f5;
+  color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
   overscroll-behavior-y: none;
@@ -79,8 +95,16 @@ input, textarea, select, [contenteditable="true"], [contenteditable=""],
 
 /* Premium Focus Visible */
 :focus-visible {
-  outline: 2px solid rgb(var(--color-primary, 0 113 227));
+  outline: 2px solid rgb(var(--color-primary, 0 113 227) / 0.85);
   outline-offset: 2px;
+}
+
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 /* Animated Organic Background */
@@ -98,47 +122,76 @@ input, textarea, select, [contenteditable="true"], [contenteditable=""],
 .ambient-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: blob 20s infinite alternate;
+  filter: blur(110px);
+  opacity: 0.22;
+  animation: blob 34s infinite alternate;
 }
 
-.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(0, 113, 227, 0.15); animation-delay: 0s; }
-.blob-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(255, 45, 85, 0.1); animation-delay: 2s; }
-.blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: rgba(94, 92, 230, 0.1); animation-delay: 4s; }
+.blob-1 { top: -12%; left: -10%; width: 46vw; height: 46vw; background: rgb(var(--color-primary, 0 113 227) / 0.12); animation-delay: 0s; }
+.blob-2 { bottom: -14%; right: -12%; width: 42vw; height: 42vw; background: rgb(var(--color-secondary, 255 45 85) / 0.06); animation-delay: 4s; }
+.blob-3 { top: 45%; left: 45%; width: 34vw; height: 34vw; background: rgb(var(--color-primary, 0 113 227) / 0.05); animation-delay: 8s; }
 
 /* Noise Texture Overlay */
 body::after {
   content: "";
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.018'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 9999;
 }
 
-/* Premium Glassmorphism */
+/* Calm surface system — one visual language for every module */
 .glass-card {
-  background: var(--glass-bg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)), var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(var(--color-primary, 0 113 227), 0.3);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  transform: translateY(-4px);
+  border-color: rgb(var(--color-primary, 0 113 227) / 0.28);
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-2px);
 }
 
 .glass-panel {
-  background: rgba(9, 9, 11, 0.4);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(9, 9, 11, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.surface-card {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+
+.surface-inset {
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid var(--line);
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid rgb(var(--color-primary, 0 113 227) / 0.8);
+  outline-offset: 2px;
 }
 
 .perspective-1000 {
@@ -153,7 +206,7 @@ body::after {
   content: '';
   position: absolute;
   inset: -1px;
-  background: linear-gradient(145deg, rgba(99,102,241,0.5), rgba(168,85,247,0.5), transparent, transparent);
+  background: linear-gradient(145deg, rgb(var(--color-primary, 0 113 227) / 0.45), rgb(var(--color-secondary, 255 45 85) / 0.25), transparent, transparent);
   border-radius: inherit;
   z-index: -1;
   opacity: 0;
@@ -181,15 +234,15 @@ body::after {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.24);
 }
 
-.text-glow { text-shadow: 0 0 20px rgba(var(--color-primary, 0 113 227), 0.5); }
+.text-glow { text-shadow: 0 0 20px rgb(var(--color-primary, 0 113 227) / 0.45); }
 
 /* Markdown & Blocknote */
 .markdown-body table {

@@ -266,7 +266,7 @@ class BackgroundService {
         audio.id = 'kampuskit-background-audio';
         audio.src = this.SILENT_AUDIO_URI;
         audio.loop = true;
-        audio.playsInline = true;
+        audio.setAttribute('playsinline', 'true');
         (audio as any).webkitPlaysInline = true;
         audio.volume = 0.01; // Inaudible whisper to satisfy audio hardware
         audio.style.display = 'none';

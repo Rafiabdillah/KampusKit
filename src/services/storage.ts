@@ -89,6 +89,55 @@ function clearOfflineQueue() {
   localStorage.removeItem(STORAGE_KEYS.OFFLINE_SYNC_QUEUE);
 }
 
+// Firestore hard limit is 1 MiB per document; keep a safety margin for
+// metadata fields added by the SDK.
+const MAX_CLOUD_DOC_BYTES = 950 * 1024;
+// Base64 attachments above this size stay local-only.
+const MAX_CLOUD_ATTACHMENT_CHARS = 100_000;
+
+function byteLength(value: string): number {
+  return new TextEncoder().encode(value).length;
+}
+
+/**
+ * Prepare a localStorage value for Firestore. Library book attachments are
+ * stripped when too large, and oversized payloads return null so callers can
+ * skip the cloud write instead of failing the whole sync.
+ */
+export function prepareCloudValue(key: string, raw: string): string | null {
+  let prepared = raw;
+
+  if (key === STORAGE_KEYS.LIBRARY_BOOKS) {
+    try {
+      const books = JSON.parse(raw);
+      if (Array.isArray(books)) {
+        let stripped = 0;
+        const lean = books.map(book => {
+          if (book && typeof book.fileData === 'string' && book.fileData.length > MAX_CLOUD_ATTACHMENT_CHARS) {
+            stripped++;
+            const { fileData, ...rest } = book;
+            return { ...rest, fileDataOmitted: true };
+          }
+          return book;
+        });
+        if (stripped > 0) {
+          console.warn(`[StorageService] ${stripped} lampiran buku terlalu besar untuk Firestore; disimpan lokal saja.`);
+          prepared = JSON.stringify(lean);
+        }
+      }
+    } catch {
+      // keep raw value
+    }
+  }
+
+  if (byteLength(prepared) > MAX_CLOUD_DOC_BYTES) {
+    console.warn(`[StorageService] Dokumen '${key}' melebihi batas Firestore dan tidak disinkronkan ke awan.`);
+    return null;
+  }
+
+  return prepared;
+}
+
 // Auto-replay offline sync queue when network reconnects
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
@@ -139,6 +188,11 @@ function mergeIdArrays(localArr: any[], cloudArr: any[]): any[] {
           if (lNum > cNum) {
             mergedMap.set(id, localItem);
           }
+        }
+        // Cloud copies strip oversized attachments; keep the local payload.
+        if (cloudItem.fileDataOmitted && localItem.fileData) {
+          const chosen = mergedMap.get(id) || cloudItem;
+          mergedMap.set(id, { ...chosen, fileData: localItem.fileData });
         }
         // If no granular timestamps, default to cloud version
       }
@@ -323,9 +377,14 @@ export const StorageService = {
         debounceTimers.delete(key);
         try {
           if (!currentUserId) return;
+          const cloudValue = prepareCloudValue(key, stringValue);
+          if (!cloudValue) {
+            broadcastSyncStatus('error', 'Sebagian data terlalu besar untuk disinkronkan ke awan (tetap tersimpan di perangkat).');
+            return;
+          }
           const docRef = doc(db, 'users', currentUserId, 'store', key);
           await setDoc(docRef, {
-            value: stringValue,
+            value: cloudValue,
             updatedAt: new Date()
           });
           broadcastSyncStatus('synced');
@@ -356,14 +415,20 @@ export const StorageService = {
 
     broadcastSyncStatus('syncing');
     const remainingQueue: string[] = [];
+    let skippedOversized = false;
 
     for (const key of queue) {
       const val = localStorage.getItem(key);
       if (val) {
+        const cloudValue = prepareCloudValue(key, val);
+        if (!cloudValue) {
+          skippedOversized = true;
+          continue;
+        }
         try {
           const docRef = doc(db, 'users', userId, 'store', key);
           await setDoc(docRef, {
-            value: val,
+            value: cloudValue,
             updatedAt: new Date()
           });
         } catch {
@@ -374,7 +439,11 @@ export const StorageService = {
 
     if (remainingQueue.length === 0) {
       clearOfflineQueue();
-      broadcastSyncStatus('synced');
+      if (skippedOversized) {
+        broadcastSyncStatus('error', 'Sebagian data terlalu besar untuk disinkronkan ke awan (tetap tersimpan di perangkat).');
+      } else {
+        broadcastSyncStatus('synced');
+      }
     } else {
       localStorage.setItem(STORAGE_KEYS.OFFLINE_SYNC_QUEUE, JSON.stringify(remainingQueue));
       broadcastSyncStatus('error', 'Beberapa perubahan offline belum terunggah');
@@ -416,9 +485,12 @@ export const StorageService = {
             }
           }
 
+          const cloudValue = prepareCloudValue(key, item);
+          if (!cloudValue) continue;
+
           const docRef = doc(db, 'users', userId, 'store', key);
           promises.push(setDoc(docRef, {
-            value: item,
+            value: cloudValue,
             updatedAt: new Date()
           }));
         }
@@ -527,11 +599,14 @@ export const StorageService = {
             dataChanged = true;
           } else if (localUpdatedAt > cloudUpdatedAt) {
             // Local is newer: push local copy to cloud in background
-            const docRef = doc(db, 'users', userId, 'store', key);
-            setDoc(docRef, {
-              value: localRaw,
-              updatedAt: new Date()
-            }).catch(() => {});
+            const cloudValue = prepareCloudValue(key, localRaw);
+            if (cloudValue) {
+              const docRef = doc(db, 'users', userId, 'store', key);
+              setDoc(docRef, {
+                value: cloudValue,
+                updatedAt: new Date()
+              }).catch(() => {});
+            }
           }
         }
       });

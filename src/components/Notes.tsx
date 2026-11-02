@@ -19,6 +19,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
+import { escapeHtml, sanitizeNoteHtml } from '../utils/sanitizeHtml';
 
 // Error Boundary for visual BlockNote editor to prevent any blank screen crash
 class BlockNoteErrorBoundary extends React.Component<
@@ -807,24 +808,26 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       return;
     }
     
-    const title = note.title || 'Catatan KampusKit';
-    const tagsHtml = (note.tags || []).map(t => `<span class="tag">#${t}</span>`).join(' ');
-    const dateStr = note.date || new Date().toLocaleString('id-ID');
-    const folderStr = note.folder ? `<span class="folder">📁 ${note.folder}</span>` : '';
-    
+    const title = escapeHtml(note.title || 'Catatan KampusKit');
+    const icon = escapeHtml(note.icon || '📝');
+    const tagsHtml = (note.tags || []).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ');
+    const dateStr = escapeHtml(note.date || new Date().toLocaleString('id-ID'));
+    const folderStr = note.folder ? `<span class="folder">📁 ${escapeHtml(note.folder)}</span>` : '';
+
     let bodyHtml: string;
     if (editor && editorMode === 'block') {
       try {
-        bodyHtml = editor.blocksToHTMLLossy(editor.document);
+        bodyHtml = sanitizeNoteHtml(editor.blocksToHTMLLossy(editor.document));
       } catch {
-        bodyHtml = `<pre style="white-space: pre-wrap;">${plainText}</pre>`;
+        bodyHtml = `<pre style="white-space: pre-wrap;">${escapeHtml(plainText)}</pre>`;
       }
     } else {
-      bodyHtml = plainText
+      // Escape user text first, then apply the lightweight Markdown transforms.
+      bodyHtml = escapeHtml(plainText)
         .replace(/^### (.*$)/gim, '<h3>$1</h3>')
         .replace(/^## (.*$)/gim, '<h2>$1</h2>')
         .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+        .replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>')
         .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/gim, '<em>$1</em>')
         .replace(/^- \[(?:x|X)\] (.*$)/gim, '<div class="check done">☑ $1</div>')
@@ -912,16 +915,16 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       let bodyContent: string;
       if (editor && editorMode === 'block') {
         try {
-          bodyContent = editor.blocksToHTMLLossy(editor.document);
+          bodyContent = sanitizeNoteHtml(editor.blocksToHTMLLossy(editor.document));
         } catch {
-          bodyContent = `<pre style="white-space: pre-wrap;">${plainText}</pre>`;
+          bodyContent = `<pre style="white-space: pre-wrap;">${escapeHtml(plainText)}</pre>`;
         }
       } else {
-        bodyContent = plainText
+        bodyContent = escapeHtml(plainText)
           .replace(/^### (.*$)/gim, '<h3>$1</h3>')
           .replace(/^## (.*$)/gim, '<h2>$1</h2>')
           .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-          .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+          .replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>')
           .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/gim, '<em>$1</em>')
           .replace(/^- \[(?:x|X)\] (.*$)/gim, '<div class="check done">☑ $1</div>')
@@ -935,7 +938,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} - KampusKit</title>
+  <title>${escapeHtml(title)} - KampusKit</title>
   <style>
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #09090b; color: #f4f4f5; max-width: 840px; margin: 0 auto; padding: 32px 20px; line-height: 1.7; }
     h1 { font-size: 2.2rem; font-weight: 800; color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 16px; margin-bottom: 12px; }
@@ -955,11 +958,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   </style>
 </head>
 <body>
-  <h1>${note.icon || '📝'} ${title}</h1>
+  <h1>${escapeHtml(note.icon || '📝')} ${escapeHtml(title)}</h1>
   <div class="meta-bar">
-    <span class="badge">📅 ${note.date || 'KampusKit'}</span>
-    ${note.folder ? `<span class="badge">📁 ${note.folder}</span>` : ''}
-    ${(note.tags || []).map(t => `<span class="tag">#${t}</span>`).join(' ')}
+    <span class="badge">📅 ${escapeHtml(note.date || 'KampusKit')}</span>
+    ${note.folder ? `<span class="badge">📁 ${escapeHtml(note.folder)}</span>` : ''}
+    ${(note.tags || []).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}
   </div>
   <article>
     ${bodyContent}

@@ -144,15 +144,21 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           output: {
             manualChunks: {
-              vendor: ['react', 'react-dom', 'lucide-react', 'motion'],
-              ui: ['recharts', 'canvas-confetti'],
+              'react-vendor': ['react', 'react-dom'],
+              'motion': ['motion'],
+              'icons': ['lucide-react'],
+              'charts': ['recharts'],
+              'markdown': ['react-markdown', 'remark-gfm'],
+              'maps': ['leaflet'],
+              'confetti': ['canvas-confetti'],
               'firebase-app': ['firebase/app'],
               'firebase-auth': ['firebase/auth'],
               'firebase-firestore': ['firebase/firestore'],
               'firebase-storage': ['firebase/storage'],
               'notes-core': ['@blocknote/core'],
               'notes-react': ['@blocknote/react'],
-              'notes-ui': ['@blocknote/mantine']
+              'notes-ui': ['@blocknote/mantine'],
+              'notes-emoji': ['@emoji-mart/data']
             }
           }
         }

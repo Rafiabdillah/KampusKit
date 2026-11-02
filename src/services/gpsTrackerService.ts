@@ -405,15 +405,20 @@ class GpsTrackerService {
     if (roomId && this.currentUser) {
       try {
         const roomRef = doc(db, 'gps_rooms', roomId);
-        setDoc(roomRef, {
+        const roomUpdate: Record<string, unknown> = {
           roomId,
-          ownerUid: this.currentUser.uid,
           members: arrayUnion(this.currentUser.uid),
-          joinCode: roomId,
           [roleField]: locJson,
           [this.state.role === 'primary' ? 'primaryName' : 'secondaryName']: this.state.deviceName,
           updatedAt: new Date()
-        }, { merge: true }).catch((err) => {
+        };
+        // Only the room creator claims ownership; a paired device must not
+        // overwrite ownerUid (security rules reject that update).
+        if (this.state.role === 'primary') {
+          roomUpdate.ownerUid = this.currentUser.uid;
+          roomUpdate.joinCode = roomId;
+        }
+        setDoc(roomRef, roomUpdate, { merge: true }).catch((err) => {
           console.warn('[GPS Service] Shared room sync notice:', err.message);
         });
       } catch {
@@ -708,24 +713,22 @@ class GpsTrackerService {
 
     try {
       const roomRef = doc(db, 'gps_rooms', clean);
-      const snap = await getDoc(roomRef);
-      if (!snap.exists()) {
-        return { success: false, message: 'Ruang GPS dengan kode tersebut tidak ditemukan.' };
-      }
-      const data = snap.data();
-      const members: string[] = Array.isArray(data.members) ? data.members : [];
-      if (!members.includes(this.currentUser.uid)) {
-        if (members.length >= 10) {
-          return { success: false, message: 'Kapasitas anggota ruang GPS sudah penuh (maksimal 10 perangkat).' };
-        }
-        await updateDoc(roomRef, {
-          members: arrayUnion(this.currentUser.uid),
-          updatedAt: new Date()
-        });
-      }
+      // Security rules do not allow reading a room before joining, so join
+      // directly: rules verify the join code and the 10-member cap.
+      await updateDoc(roomRef, {
+        members: arrayUnion(this.currentUser.uid),
+        updatedAt: new Date()
+      });
       this.setRoomId(clean);
       return { success: true, message: 'Berhasil bergabung ke ruang GPS!' };
     } catch (err: any) {
+      const code = err?.code || '';
+      if (code === 'not-found') {
+        return { success: false, message: 'Ruang GPS dengan kode tersebut tidak ditemukan.' };
+      }
+      if (code === 'permission-denied') {
+        return { success: false, message: 'Tidak dapat bergabung: kode tidak valid, kapasitas penuh (maks 10), atau izin ditolak.' };
+      }
       return { success: false, message: 'Gagal bergabung ke ruang: ' + (err?.message || 'Izin ditolak') };
     }
   }

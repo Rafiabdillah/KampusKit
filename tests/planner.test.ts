@@ -20,7 +20,7 @@ describe('planner service', () => {
       { id: 'c1', name: 'Algoritma', room: 'Lab 1', day: 'Senin', startTime: '18:00', endTime: '20:00', lecturer: 'Dr. A', credits: 3 }
     ];
     const tasks: Task[] = [
-      { id: 't1', title: 'Tugas 1', deadline: '2026-11-03', status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 1 }
+      { id: 't1', title: 'Tugas 1', subject: 'Algoritma', deadline: '2026-11-03', status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 1 }
     ];
 
     const plan = generatePlan({
@@ -48,8 +48,8 @@ describe('planner service', () => {
 
   it('prioritizes urgent task with nearer deadline and HIGH priority', () => {
     const tasks: Task[] = [
-      { id: 't-far', title: 'Tugas Jauh', deadline: '2026-11-06', status: TaskStatus.TODO, priority: Priority.LOW, tags: [], subtasks: [], createdAt: 1 },
-      { id: 't-urgent', title: 'Tugas Urgent Besok', deadline: '2026-11-03', status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 2 }
+      { id: 't-far', title: 'Tugas Jauh', subject: 'Algoritma', deadline: '2026-11-06', status: TaskStatus.TODO, priority: Priority.LOW, tags: [], subtasks: [], createdAt: 1 },
+      { id: 't-urgent', title: 'Tugas Urgent Besok', subject: 'Algoritma', deadline: '2026-11-03', status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 2 }
     ];
 
     const plan = generatePlan({
@@ -81,7 +81,7 @@ describe('planner service', () => {
     };
 
     const tasks: Task[] = [
-      { id: 't1', title: 'Tugas Algo', deadline: '2026-11-03', status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 1 }
+      { id: 't1', title: 'Tugas Algo', subject: 'Algoritma', deadline: '2026-11-03', status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 1 }
     ];
 
     const plan = generatePlan({
@@ -109,10 +109,10 @@ describe('planner service', () => {
 
   it('does not exceed daily study target minutes', () => {
     const tasks: Task[] = [
-      { id: 't1', title: 'Tugas 1', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 1 },
-      { id: 't2', title: 'Tugas 2', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 2 },
-      { id: 't3', title: 'Tugas 3', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 3 },
-      { id: 't4', title: 'Tugas 4', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 4 }
+      { id: 't1', title: 'Tugas 1', subject: 'Algoritma', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 1 },
+      { id: 't2', title: 'Tugas 2', subject: 'Algoritma', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 2 },
+      { id: 't3', title: 'Tugas 3', subject: 'Algoritma', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 3 },
+      { id: 't4', title: 'Tugas 4', subject: 'Algoritma', deadline: '2026-11-03', estimatedMinutes: 60, status: TaskStatus.TODO, priority: Priority.HIGH, tags: [], subtasks: [], createdAt: 4 }
     ];
 
     const plan = generatePlan({

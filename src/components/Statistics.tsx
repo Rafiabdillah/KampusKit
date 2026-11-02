@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storage';
+import { STORAGE_KEYS } from '../services/storageKeys';
 import { Task, Course, TaskStatus, Transaction, Habit } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer, Line, ComposedChart, PieChart, Pie, Cell } from 'recharts';
 import { Activity, CheckCircle, Calendar as CalIcon, TrendingUp, Wallet, CheckSquare, Target, GraduationCap, Flame, ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -29,10 +30,16 @@ export const Statistics = ({ tasks, courses }: { tasks: Task[], courses: Course[
   const [habits, setHabits] = useState<Habit[]>([]);
 
   useEffect(() => {
-    setAttendance(StorageService.getItem<AttendanceRecord[]>('attendance', []));
-    setTransactions(StorageService.getItem<Transaction[]>('transactions', []));
-    setGrades(StorageService.getItem<GradeItem[]>('grade_data', []));
-    setHabits(StorageService.getItem<Habit[]>('habits', []));
+    const attendanceV2 = StorageService.getItem<AttendanceRecord[]>(STORAGE_KEYS.ATTENDANCE_V2, []);
+    setAttendance(attendanceV2.length > 0
+      ? attendanceV2
+      : StorageService.getItem<AttendanceRecord[]>('attendance', []));
+    setTransactions(StorageService.getItem<Transaction[]>(STORAGE_KEYS.TRANSACTIONS, []));
+    const gradesV2 = StorageService.getItem<GradeItem[]>(STORAGE_KEYS.GRADE_DATA_V2, []);
+    setGrades(gradesV2.length > 0
+      ? gradesV2
+      : StorageService.getItem<GradeItem[]>('grade_data', []));
+    setHabits(StorageService.getItem<Habit[]>(STORAGE_KEYS.HABITS, []));
 
     // Generate weekly data (Last 7 days)
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];

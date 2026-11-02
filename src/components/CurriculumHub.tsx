@@ -416,6 +416,7 @@ ${activeChapter.reflectionPrompt}
         id: `note-${Date.now()}`,
         title: `Rangkuman: ${activeChapter.title}`,
         content: noteContent,
+        date: new Date().toLocaleString('id-ID'),
         category: 'STUDY',
         tags: [activeCurriculum.domain, 'Kurikulum'],
         createdAt: Date.now(),

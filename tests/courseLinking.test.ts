@@ -83,7 +83,7 @@ describe('courseLinking service', () => {
         { id: 't2', title: 'Belanja', subject: 'Pribadi', deadline: '2026-11-02', status: 'TODO' as any, priority: 'LOW' as any, tags: [], subtasks: [], createdAt: 124 }
       ];
       const notes: Note[] = [
-        { id: 'n1', title: 'Catatan Pohon Biner', folder: 'Algoritma & Struktur Data', content: 'Tree traversal', category: 'STUDY' as any, tags: ['algo'], createdAt: 100, updatedAt: 100, isFavorite: false }
+        { id: 'n1', title: 'Catatan Pohon Biner', date: '2026-11-01', folder: 'Algoritma & Struktur Data', content: 'Tree traversal', category: 'STUDY' as any, tags: ['algo'], createdAt: 100, updatedAt: 100, isFavorite: false }
       ];
       const decks: FlashcardDeck[] = [
         { id: 'd1', title: 'Flashcard Kompleksitas', subject: 'Algoritma & Struktur Data', cards: [] }

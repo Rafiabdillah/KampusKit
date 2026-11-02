@@ -276,7 +276,7 @@ export const SmartMotivationModal: React.FC<SmartMotivationModalProps> = ({
                 onClose();
                 onNavigate('tasks');
               }}
-              className="w-full sm:w-auto px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-primary/25 flex items-center justify-center gap-1.5"
+              className="w-full sm:w-auto px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-primary/25 flex items-center justify-center gap-1.5"
             >
               <span>Eksekusi Tugas</span>
               <ArrowRight size={14} />

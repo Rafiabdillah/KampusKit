@@ -5,7 +5,8 @@ import {
   Award, Target, Map, Repeat, Bot, Wallet, Moon, Utensils, Briefcase, 
   Quote, Users, CalendarDays, Menu, X, Dumbbell, Rocket, Zap, Brain, 
   Sparkles, Command, Coffee, Crown, UserCheck, BarChart2, ChevronDown, 
-  ChevronRight, ChevronLeft, Search, PanelLeftClose, PanelLeft, Flame, Radio, BookMarked
+  ChevronRight, ChevronLeft, Search, PanelLeftClose, PanelLeft, Flame, Radio, BookMarked,
+  Languages, ShieldCheck
 } from 'lucide-react';
 import { ViewState, Task, TaskStatus, Priority } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
@@ -21,6 +22,7 @@ interface NavigationProps {
   onOpenCommandPalette?: () => void;
   isSidebarCollapsed?: boolean;
   setIsSidebarCollapsed?: (collapsed: boolean | ((prev: boolean) => boolean)) => void;
+  onOpenBackgroundSettings?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ 
@@ -30,10 +32,12 @@ export const Navigation: React.FC<NavigationProps> = ({
   tasks = [],
   onOpenCommandPalette,
   isSidebarCollapsed = false,
-  setIsSidebarCollapsed
+  setIsSidebarCollapsed,
+  onOpenBackgroundSettings
 }) => {
   const userProfile = useStore(state => state.userProfile);
   const language = useStore(state => state.language);
+  const setLanguage = useStore(state => state.setLanguage);
   const t = TRANSLATIONS[language];
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
@@ -172,21 +176,21 @@ export const Navigation: React.FC<NavigationProps> = ({
               className="fixed inset-0 z-[200] bg-zinc-950 flex flex-col"
             >
               {/* Drawer Top Header */}
-              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 bg-zinc-900/60 backdrop-blur-xl">
+              <div className="flex h-16 items-center justify-between px-4 border-b border-white/[0.06] bg-zinc-950/95">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary/30 text-lg overflow-hidden ${userProfile?.usePhotoAsLogo && userProfile?.photo ? '' : (userProfile?.appIconColor || 'bg-gradient-to-br from-primary to-purple-600')}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shadow-md shadow-black/30 text-lg overflow-hidden ${userProfile?.usePhotoAsLogo && userProfile?.photo ? '' : (userProfile?.appIconColor || 'bg-gradient-to-br from-primary to-indigo-500')}`}>
                     {renderAppIcon()}
                   </div>
                   <div>
-                    <h1 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                      Kampus Kit <span className="bg-primary/20 text-primary text-[9px] px-1.5 py-0.5 rounded font-black border border-primary/30">V3.3</span>
+                    <h1 className="text-[15px] font-semibold text-white tracking-tight flex items-center gap-2">
+                      Kampus Kit <span className="bg-white/[0.06] text-zinc-400 text-[9px] px-1.5 py-0.5 rounded-md font-bold border border-white/[0.08]">V3.3</span>
                     </h1>
-                    <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Semua Modul & Fitur</p>
+                    <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-[0.14em]">Semua Modul & Fitur</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsMobileMenuOpen(false)} 
-                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors active:scale-95 touch-manipulation"
+                  className="w-10 h-10 flex items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors active:scale-95 touch-manipulation"
                   aria-label="Tutup Menu"
                 >
                   <X size={22} />
@@ -194,15 +198,15 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
 
               {/* Search Box in Mobile Menu */}
-              <div className="p-4 border-b border-white/5 bg-black/20">
+              <div className="px-4 py-3 border-b border-white/[0.06]">
                 <div className="relative">
-                  <Search size={16} className="absolute left-3.5 top-3.5 text-zinc-400 pointer-events-none" />
+                  <Search size={16} className="absolute left-3.5 top-3.5 text-zinc-500 pointer-events-none" />
                   <input
                     type="text"
                     value={mobileSearchQuery}
                     onChange={(e) => setMobileSearchQuery(e.target.value)}
                     placeholder="Cari modul (tugas, ipk, jadwal, ai...)"
-                    className="w-full bg-zinc-900/90 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full h-11 bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-10 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                   {mobileSearchQuery && (
                     <button 
@@ -217,7 +221,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
 
               {/* User Profile Mini Banner */}
-              <div className="p-4 bg-gradient-to-r from-primary/10 via-purple-500/5 to-transparent border-b border-white/5 mx-4 mt-3 rounded-2xl flex items-center justify-between">
+              <div className="mx-4 mt-3 flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
                 <div className="flex items-center gap-3" onClick={() => handleMobileNav('profile')}>
                   <div className="w-10 h-10 rounded-full bg-zinc-800 border border-primary/40 overflow-hidden relative flex-shrink-0">
                     {userProfile?.photo ? (
@@ -255,7 +259,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                         onClick={() => toggleGroup(group.title)}
                         className="w-full flex items-center justify-between px-2 py-1 opacity-80 hover:opacity-100 transition-opacity"
                       >
-                        <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{group.title}</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">{group.title}</h3>
                         {!mobileSearchQuery && (
                           isCollapsed ? <ChevronRight size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />
                         )}
@@ -270,16 +274,16 @@ export const Navigation: React.FC<NavigationProps> = ({
                               <button
                                 key={item.id}
                                 onClick={() => handleMobileNav(item.id as ViewState)}
-                                className={`flex items-center justify-start gap-3.5 p-3.5 rounded-2xl transition-all text-left w-full overflow-hidden min-h-[50px] touch-manipulation active:scale-[0.98] ${
+                                className={`flex items-center justify-start gap-3.5 p-3 rounded-xl transition-colors text-left w-full overflow-hidden min-h-[52px] touch-manipulation active:scale-[0.98] ${
                                   isActive 
-                                    ? 'bg-primary/20 text-primary border border-primary/40 shadow-lg shadow-primary/10' 
-                                    : 'bg-white/5 text-zinc-300 border border-white/5 hover:bg-white/10'
+                                    ? 'bg-primary/10 text-white border border-primary/30'
+                                    : 'bg-white/[0.03] text-zinc-300 border border-white/[0.05] hover:bg-white/[0.06]'
                                 }`}
                               >
-                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isActive ? 'bg-primary text-white' : 'bg-white/5 text-zinc-400'}`}>
-                                  <Icon size={18} />
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isActive ? 'bg-primary text-white' : 'bg-white/[0.04] text-zinc-400'}`}>
+                                  <Icon size={17} />
                                 </div>
-                                <span className="text-sm font-semibold truncate flex-1 min-w-0">{item.label}</span>
+                                <span className="text-sm font-medium truncate flex-1 min-w-0">{item.label}</span>
                                 {item.badge && item.badge > 0 ? (
                                   <span className="flex-shrink-0 ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                                     {item.badge}
@@ -294,26 +298,67 @@ export const Navigation: React.FC<NavigationProps> = ({
                   );
                 })}
                 
-                {/* PWA Install Button for Mobile Drawer */}
-                <div className="pt-2">
+                {/* Preferences */}
+                <div className="pt-3 border-t border-white/[0.06] space-y-2">
+                  <h3 className="px-1 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">Preferensi</h3>
+
+                  <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-3">
+                    <div className="flex items-center gap-3 text-sm font-medium text-zinc-200">
+                      <Languages size={18} className="text-zinc-400" />
+                      Bahasa
+                    </div>
+                    <div className="flex items-center rounded-lg border border-white/[0.08] bg-black/30 p-0.5 text-[11px] font-mono">
+                      <button
+                        onClick={() => setLanguage('id')}
+                        className={`rounded-md px-2.5 py-1 font-bold transition-colors ${language === 'id' ? 'bg-primary text-white' : 'text-zinc-400'}`}
+                        aria-pressed={language === 'id'}
+                      >
+                        ID
+                      </button>
+                      <button
+                        onClick={() => setLanguage('en')}
+                        className={`rounded-md px-2.5 py-1 font-bold transition-colors ${language === 'en' ? 'bg-primary text-white' : 'text-zinc-400'}`}
+                        aria-pressed={language === 'en'}
+                      >
+                        EN
+                      </button>
+                    </div>
+                  </div>
+
+                  {onOpenBackgroundSettings && (
+                    <button
+                      onClick={() => {
+                        onOpenBackgroundSettings();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex w-full items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-3 text-left text-sm font-medium text-zinc-200 transition-colors hover:bg-white/[0.06]"
+                    >
+                      <ShieldCheck size={18} className="text-emerald-400" />
+                      Izin background & baterai
+                    </button>
+                  )}
+                </div>
+
+                {/* PWA Install */}
+                <div className="pt-1">
                   <PWAInstallButton variant="full" />
                 </div>
 
-                {/* System Settings in Mobile Drawer */}
-                <div className="pt-2">
-                  <h3 className="px-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2 opacity-80">Sistem</h3>
+                {/* System Settings */}
+                <div className="pt-1">
+                  <h3 className="px-1 mb-2 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">Sistem</h3>
                   <button
                     onClick={() => handleMobileNav('settings')}
-                    className={`w-full flex items-center justify-start gap-3.5 p-3.5 rounded-2xl transition-all text-left min-h-[50px] touch-manipulation active:scale-[0.98] ${
-                      currentView === 'settings' 
-                        ? 'bg-primary/20 text-primary border border-primary/40' 
-                        : 'bg-white/5 text-zinc-300 border border-white/5'
+                    className={`w-full flex items-center justify-start gap-3.5 p-3 rounded-xl transition-colors text-left min-h-[52px] touch-manipulation active:scale-[0.98] ${
+                      currentView === 'settings'
+                        ? 'bg-primary/10 text-white border border-primary/30'
+                        : 'bg-white/[0.03] text-zinc-300 border border-white/[0.05]'
                     }`}
                   >
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${currentView === 'settings' ? 'bg-primary text-white' : 'bg-white/5 text-zinc-400'}`}>
-                      <Settings size={18} />
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${currentView === 'settings' ? 'bg-primary text-white' : 'bg-white/[0.04] text-zinc-400'}`}>
+                      <Settings size={17} />
                     </div>
-                    <span className="text-sm font-semibold">Pengaturan Sistem</span>
+                    <span className="text-sm font-medium">Pengaturan Sistem</span>
                   </button>
                 </div>
               </div>
@@ -321,9 +366,9 @@ export const Navigation: React.FC<NavigationProps> = ({
           )}
         </AnimatePresence>
 
-        {/* Floating Bottom Navigation Bar for Mobile */}
-        <div className="fixed bottom-4 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-6 z-50 flex justify-center pointer-events-none pb-[env(safe-area-inset-bottom,0px)]">
-          <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-1.5 sm:px-2 sm:py-2 flex items-center justify-between w-full max-w-sm shadow-2xl shadow-black/80 pointer-events-auto ring-1 ring-white/5">
+        {/* Floating bottom dock */}
+        <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2 pointer-events-none">
+          <nav className="pointer-events-auto flex w-full max-w-md items-center gap-1 rounded-2xl border border-white/10 bg-zinc-950/90 p-1.5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.95)] backdrop-blur-xl">
             {mobileItems.map((item) => {
               const isActive = currentView === item.id && !isMobileMenuOpen;
               const Icon = item.icon;
@@ -331,68 +376,70 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleMobileNav(item.id as ViewState)}
-                  className={`relative flex flex-col items-center justify-center h-12 flex-1 rounded-xl sm:rounded-2xl transition-all duration-200 touch-manipulation active:scale-90 ${
-                    isActive 
-                      ? 'text-primary bg-primary/15 shadow-[0_0_15px_rgba(var(--color-primary),0.2)] font-bold' 
-                      : 'text-zinc-400 hover:text-zinc-200'
+                  className={`relative flex h-13 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl transition-colors touch-manipulation active:scale-95 ${
+                    isActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'
                   }`}
                   aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   <div className="relative">
-                    <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                    <Icon size={20} strokeWidth={isActive ? 2.4 : 1.9} />
                     {item.badge && item.badge > 0 ? (
-                      <span className="absolute -top-1.5 -right-2 min-w-[14px] h-[14px] px-1 bg-red-500 rounded-full border border-black flex items-center justify-center text-[8px] font-black text-white">
+                      <span className="absolute -top-1.5 -right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full border border-zinc-950 bg-rose-500 px-1 text-[8px] font-black text-white">
                         {item.badge}
                       </span>
                     ) : null}
                   </div>
-                  <span className="text-[10px] tracking-tight mt-0.5 scale-90">{item.label}</span>
+                  <span className={`text-[10px] tracking-tight ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
                 </button>
               );
             })}
 
-            <div className="w-px h-7 bg-white/10 my-auto mx-1"></div>
+            <div className="mx-0.5 h-7 w-px bg-white/[0.08]"></div>
 
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className={`relative flex flex-col items-center justify-center h-12 w-12 sm:w-14 rounded-xl sm:rounded-2xl transition-all duration-200 touch-manipulation active:scale-90 ${
+              className={`flex h-13 w-14 flex-col items-center justify-center gap-0.5 rounded-xl transition-colors touch-manipulation active:scale-95 ${
                 isMobileMenuOpen 
-                  ? 'text-primary bg-primary/15' 
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'
               }`}
               aria-label="Buka Semua Menu"
+              aria-expanded={isMobileMenuOpen}
             >
-              <Menu size={20} />
-              <span className="text-[10px] tracking-tight mt-0.5 scale-90">Menu</span>
+              <Menu size={20} strokeWidth={1.9} />
+              <span className="text-[10px] font-medium tracking-tight">Menu</span>
             </button>
-          </div>
+          </nav>
         </div>
       </>
     );
   }
 
   // --- DESKTOP / LAPTOP SIDEBAR VIEW ---
-  const desktopItemClass = "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium cursor-pointer mb-1 group relative";
-  const inactiveDesktopClass = "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]";
+  const desktopItemClass = "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-[13px] font-medium cursor-pointer mb-0.5";
+  const inactiveDesktopClass = "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]";
 
   return (
     <aside 
-      className={`h-full flex-shrink-0 flex flex-col z-40 bg-zinc-950/80 backdrop-blur-xl border-r border-white/5 relative transition-all duration-300 ${
-        isSidebarCollapsed ? 'w-20' : 'w-64 xl:w-72'
+      className={`h-full flex-shrink-0 flex flex-col z-40 bg-zinc-950/95 border-r border-white/[0.06] relative transition-all duration-300 ${
+        isSidebarCollapsed ? 'w-20' : 'w-[264px] xl:w-[280px]'
       }`}
     >
       {/* Sidebar Header */}
-      <div className="p-4 sm:p-5 border-b border-white/5 flex items-center justify-between">
+      <div className="h-16 px-4 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary/30 text-lg overflow-hidden flex-shrink-0 ${userProfile?.usePhotoAsLogo && userProfile?.photo ? '' : (userProfile?.appIconColor || 'bg-gradient-to-br from-primary to-purple-600')}`}>
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-black shadow-md shadow-black/30 text-lg overflow-hidden flex-shrink-0 ${userProfile?.usePhotoAsLogo && userProfile?.photo ? '' : (userProfile?.appIconColor || 'bg-gradient-to-br from-primary to-indigo-500')}`}>
             {renderAppIcon()}
           </div>
           {!isSidebarCollapsed && (
             <div className="min-w-0 animate-fade-in">
-              <h1 className="text-sm font-bold text-white tracking-wide flex items-center gap-2 truncate">
-                Kampus Kit <span className="bg-primary/20 text-primary text-[9px] px-1.5 py-0.5 rounded font-black border border-primary/30">V3.3</span>
+              <h1 className="text-[13px] font-semibold text-white tracking-tight flex items-center gap-2 truncate">
+                Kampus Kit <span className="bg-white/[0.06] text-zinc-400 text-[9px] px-1.5 py-0.5 rounded-md font-bold border border-white/[0.08]">V3.3</span>
               </h1>
-              <p className="text-[9px] text-primary font-bold uppercase tracking-widest">OS Mahasiswa</p>
+              <p className="text-[9px] text-zinc-500 font-semibold uppercase tracking-[0.16em]">OS Mahasiswa</p>
             </div>
           )}
         </div>
@@ -414,7 +461,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       <div className="px-3 pt-3">
         <button
           onClick={onOpenCommandPalette}
-          className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 text-zinc-400 hover:text-white text-xs transition-all duration-200 group ${
+          className={`w-full h-10 flex items-center gap-2.5 px-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] text-zinc-400 hover:text-white text-xs transition-colors group ${
             isSidebarCollapsed ? 'justify-center px-0' : 'justify-between'
           }`}
           title="Cari Cepat & Perintah (⌘K / Ctrl+K)"
@@ -443,7 +490,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   onClick={() => toggleGroup(group.title)}
                   className="w-full flex items-center justify-between px-3 py-1.5 opacity-80 hover:opacity-100 transition-opacity group/header"
                 >
-                  <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest group-hover/header:text-zinc-300 transition-colors">
+                  <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em] group-hover/header:text-zinc-300 transition-colors">
                     {group.title}
                   </h3>
                   {isCollapsed ? (
@@ -465,13 +512,13 @@ export const Navigation: React.FC<NavigationProps> = ({
                         onClick={() => setView(item.id as ViewState)}
                         className={`${desktopItemClass} ${
                           isSidebarCollapsed ? 'justify-center px-0' : ''
-                        } ${isActive ? 'text-white' : inactiveDesktopClass}`}
+                        } ${isActive ? 'bg-primary/10 text-white' : inactiveDesktopClass}`}
                         title={isSidebarCollapsed ? item.label : undefined}
                       >
                         {isActive && (
-                          <motion.div
-                            layoutId="activeNavBackground"
-                            className="absolute inset-0 bg-primary/15 border border-primary/30 rounded-xl shadow-[0_0_15px_rgba(var(--color-primary),0.15)]"
+                          <motion.span
+                            layoutId="activeNavIndicator"
+                            className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary"
                             transition={{ type: "spring", stiffness: 350, damping: 30 }}
                           />
                         )}
@@ -494,7 +541,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                           <>
                             <span className="flex-1 relative z-10 truncate">{item.label}</span>
                             {item.badge && item.badge > 0 ? (
-                              <span className="relative z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                              <span className="relative z-10 rounded-md border border-rose-500/20 bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-rose-300">
                                 {item.badge}
                               </span>
                             ) : null}
@@ -512,7 +559,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         {/* Settings item */}
         <div className="pt-2">
           {!isSidebarCollapsed && (
-            <h3 className="px-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 opacity-80">
+            <h3 className="px-3 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em] mb-1.5">
               Sistem
             </h3>
           )}
@@ -520,13 +567,13 @@ export const Navigation: React.FC<NavigationProps> = ({
             onClick={() => setView('settings')}
             className={`${desktopItemClass} ${
               isSidebarCollapsed ? 'justify-center px-0' : ''
-            } ${currentView === 'settings' ? 'text-white' : inactiveDesktopClass}`}
+            } ${currentView === 'settings' ? 'bg-primary/10 text-white' : inactiveDesktopClass}`}
             title={isSidebarCollapsed ? "Pengaturan" : undefined}
           >
             {currentView === 'settings' && (
-              <motion.div
-                layoutId="activeNavBackground"
-                className="absolute inset-0 bg-primary/15 border border-primary/30 rounded-xl shadow-[0_0_15px_rgba(var(--color-primary),0.15)]"
+              <motion.span
+                layoutId="activeNavIndicator"
+                className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary"
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
               />
             )}
@@ -550,12 +597,12 @@ export const Navigation: React.FC<NavigationProps> = ({
       </div>
 
       {/* User Profile Footer Mini */}
-      <div className="p-3 border-t border-white/5 bg-gradient-to-t from-black/40 to-transparent">
+      <div className="p-3 border-t border-white/[0.06]">
         <div 
-          className={`flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer group border ${
+          className={`flex items-center gap-3 p-2 rounded-xl transition-colors cursor-pointer group border ${
             currentView === 'profile' 
-              ? 'border-primary/40 shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-primary/10' 
-              : 'border-transparent hover:border-white/10 hover:bg-white/[0.02]'
+              ? 'border-primary/30 bg-primary/10'
+              : 'border-transparent hover:border-white/[0.08] hover:bg-white/[0.03]'
           } ${isSidebarCollapsed ? 'justify-center p-1' : ''}`}
           onClick={() => setView('profile')}
           title={isSidebarCollapsed ? `${userProfile?.name || 'Mahasiswa'} (Profil)` : undefined}

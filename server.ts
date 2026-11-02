@@ -244,12 +244,13 @@ async function startServer() {
     next();
   }
 
-  // Body limits: 12MB only for vision and flashcards upload, 2MB for default
+  // Body limits: 12MB for vision, 16MB for flashcards (10MB file + base64 overhead), 2MB default
   const defaultJsonParser = express.json({ limit: "2mb" });
   const uploadJsonParser = express.json({ limit: "12mb" });
+  const flashcardJsonParser = express.json({ limit: "16mb" });
 
   app.use("/api/vision", uploadJsonParser);
-  app.use("/api/generate-flashcards", uploadJsonParser);
+  app.use("/api/generate-flashcards", flashcardJsonParser);
   app.use(defaultJsonParser);
   app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
@@ -875,6 +876,7 @@ Format persis:
       const topic = req.body?.topic || "Topik Pembelajaran";
       res.json({
         title: topic,
+        isFallback: true,
         coreConcept: `Pemahaman ringkas dan esensial mengenai ${topic} untuk mendukung kesiapan perkuliahan dan ujian.`,
         analogy: `Mempelajari ${topic} ibarat merakit pondasi bangunan; setiap bagian terhubung kuat untuk menopang pemahaman tingkat lanjut.`,
         keyPoints: [
@@ -954,6 +956,7 @@ Format persis:
       const topic = req.body?.topic || "Mata Kuliah";
       res.json({
         title: `Peta Jalan Terstruktur: ${topic}`,
+        isFallback: true,
         description: `Kurikulum bertahap 4 fase untuk menguasai ${topic} dari tingkat dasar hingga penerapan nyata.`,
         estimatedWeeks: 8,
         modules: [
@@ -997,6 +1000,8 @@ Format persis:
       const difficulty = req.body?.difficulty || "MENENGAH";
       const targetWeeks = Number(req.body?.targetWeeks) || 3;
       const focusGoal = req.body?.focusGoal || "";
+
+      const ai = getAIClient(req);
 
       const prompt = `Anda adalah Senior Academic Curriculum Designer & Master Coach Pengembangan Diri Mahasiswa.
 Buatkan kurikulum pembelajaran terstruktur dan mode belajar interaktif komprehensif untuk topik: "${topic}"
@@ -1252,7 +1257,8 @@ HANYA kembalikan valid JSON murni tanpa markdown triple backticks.`;
         updatedAt: Date.now(),
         lastStudiedChapterIndex: 0,
         totalStudyMinutes: 0,
-        source: 'DEFAULT'
+        source: 'DEFAULT',
+        isFallback: true
       });
     }
   });

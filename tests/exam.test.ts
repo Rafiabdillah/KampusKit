@@ -48,7 +48,7 @@ describe('Exam Readiness & Exam Planner', () => {
       id: 'e1',
       courseId: 'c1',
       title: 'UTS Pemrograman Web',
-      type: 'UTS',
+      kind: 'UTS',
       date: '2026-11-15',
       topics: [
         { id: 'top-1', title: 'React Hooks', completed: false, masteryLevel: 1 },
@@ -59,8 +59,8 @@ describe('Exam Readiness & Exam Planner', () => {
 
     it('returns 0% when no topics, cards, tasks, or focus hours are completed', () => {
       const result = calculateExamReadiness(mockExam, {
-        tasks: [{ id: 't1', title: 'Tugas 1', status: TaskStatus.TODO, priority: Priority.MEDIUM, deadline: '2026-11-10', tags: [], subtasks: [], createdAt: 1 }],
-        flashcardDecks: [{ id: 'd1', title: 'Deck 1', subject: 'Web', cards: [{ id: 'c1', front: 'Q', back: 'A', interval: 0, repetition: 0, easeFactor: 2.5, nextReview: 0, createdAt: 0 }] }],
+        tasks: [{ id: 't1', title: 'Tugas 1', subject: 'Web', status: TaskStatus.TODO, priority: Priority.MEDIUM, deadline: '2026-11-10', tags: [], subtasks: [], createdAt: 1 }],
+        flashcardDecks: [{ id: 'd1', title: 'Deck 1', subject: 'Web', cards: [{ id: 'c1', front: 'Q', back: 'A', interval: 0, repetition: 0, easeFactor: 2.5, nextReview: 0 }] }],
         focusSessions: []
       });
 
@@ -82,8 +82,8 @@ describe('Exam Readiness & Exam Planner', () => {
 
       const now = Date.now();
       const result = calculateExamReadiness(fullExam, {
-        tasks: [{ id: 't1', title: 'Tugas 1', status: TaskStatus.DONE, priority: Priority.MEDIUM, deadline: '2026-11-10', tags: [], subtasks: [], createdAt: 1 }],
-        flashcardDecks: [{ id: 'd1', title: 'Deck 1', subject: 'Web', cards: [{ id: 'c1', front: 'Q', back: 'A', interval: 1, repetition: 1, easeFactor: 2.5, nextReview: 0, createdAt: 0 }] }],
+        tasks: [{ id: 't1', title: 'Tugas 1', subject: 'Web', status: TaskStatus.DONE, priority: Priority.MEDIUM, deadline: '2026-11-10', tags: [], subtasks: [], createdAt: 1 }],
+        flashcardDecks: [{ id: 'd1', title: 'Deck 1', subject: 'Web', cards: [{ id: 'c1', front: 'Q', back: 'A', interval: 1, repetition: 1, easeFactor: 2.5, nextReview: 0 }] }],
         focusSessions: [
           { id: 'f1', startedAt: now - 3600000, minutes: 360, completed: true, updatedAt: now } // 6 hours
         ],
@@ -113,8 +113,8 @@ describe('Exam Readiness & Exam Planner', () => {
 
       const now = Date.now();
       const result = calculateExamReadiness(partialExam, {
-        tasks: [{ id: 't1', title: 'Tugas 1', status: TaskStatus.DONE, priority: Priority.MEDIUM, deadline: '2026-11-10', tags: [], subtasks: [], createdAt: 1 }],
-        flashcardDecks: [{ id: 'd1', title: 'Deck 1', subject: 'Web', cards: [{ id: 'c1', front: 'Q', back: 'A', interval: 0, repetition: 0, easeFactor: 2.5, nextReview: 0, createdAt: 0 }] }],
+        tasks: [{ id: 't1', title: 'Tugas 1', subject: 'Web', status: TaskStatus.DONE, priority: Priority.MEDIUM, deadline: '2026-11-10', tags: [], subtasks: [], createdAt: 1 }],
+        flashcardDecks: [{ id: 'd1', title: 'Deck 1', subject: 'Web', cards: [{ id: 'c1', front: 'Q', back: 'A', interval: 0, repetition: 0, easeFactor: 2.5, nextReview: 0 }] }],
         focusSessions: [
           { id: 'f1', startedAt: now - 3600000, minutes: 180, completed: true, updatedAt: now }
         ],
@@ -133,7 +133,7 @@ describe('Exam Readiness & Exam Planner', () => {
       id: 'e1',
       courseId: 'c1',
       title: 'UAS Sistem Operasi',
-      type: 'UAS',
+      kind: 'UAS',
       date: '2026-11-20',
       topics: [
         { id: 't1', title: 'Process Management', completed: false, masteryLevel: 1 },
@@ -168,6 +168,7 @@ describe('Exam Readiness & Exam Planner', () => {
           id: 'n1',
           title: 'Catatan: Struktur Data Tree',
           content: '## Binary Search Tree\nPenjelasan...\n### AVL Tree\nPenjelasan...',
+          date: '2026-11-01',
           category: 'STUDY' as any,
           tags: [],
           createdAt: 1,

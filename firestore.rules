@@ -36,8 +36,10 @@ service cloud.firestore {
     }
 
     match /shared_links/{linkId} {
-      allow read: if true; // Publicly readable via link
-      allow create: if isSignedIn() && isValidId(linkId) && isValidSharedLink(request.resource.data);
+      // Only direct document access by unguessable ID; listing must stay disabled.
+      allow get: if isValidId(linkId) && linkId.size() >= 20;
+      allow list: if false;
+      allow create: if isSignedIn() && isValidId(linkId) && linkId.size() >= 20 && isValidSharedLink(request.resource.data);
       allow update, delete: if false; // Immutable after creation
     }
 

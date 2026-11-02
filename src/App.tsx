@@ -42,8 +42,6 @@ import { auth, onAuthStateChanged, User } from './services/firebase';
 import { StorageService } from './services/storage';
 import { gpsTrackerService } from './services/gpsTrackerService';
 import { BackgroundPermissionModal } from './components/BackgroundPermissionModal';
-import { PWAInstallButton } from './components/PWAInstallButton';
-import { CrossPlatformInstallModal } from './components/CrossPlatformInstallModal';
 import { useStore } from './store/useStore';
 import { TRANSLATIONS, AppLanguage } from './utils/translations';
 import { audioService } from './services/audio';
@@ -51,6 +49,7 @@ import { SharingService, SharedDataType } from './services/sharing';
 import { NotificationService } from './services/notifications';
 import { THEMES } from './constants';
 import { useSwipe } from './hooks/useSwipe';
+import { buildViewSearch, getViewFromSearch } from './utils/viewRouting';
 import { ViewState, Task, Course, Note, UserProfile, Book, TaskStatus, Priority, FlashcardDeck } from './types';
 import { 
   Plus, CheckSquare, BookOpen, Calendar as CalIcon, Download, Search, 
@@ -59,7 +58,7 @@ import {
   Compass, Quote, Repeat, Target, PenTool, Wallet, Moon, Utensils, 
   Dumbbell, Briefcase, Award, Users, BrainCircuit, Lightbulb, Map, 
   Settings as SettingsIcon, User as UserIcon, Sparkles, Brain, AlertCircle,
-  Wifi, WifiOff, Radio, MapPin, ShieldCheck, BookMarked, Share2, ExternalLink, X
+  WifiOff, Radio, MapPin, BookMarked, Share2, ExternalLink, X
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -175,7 +174,20 @@ const getViewMetadata = (view: string, lang: AppLanguage): { title: string; cate
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewState>('dashboard');
-  const handleSetView = (view: ViewState) => {
+  const handleSetView = (view: ViewState, historyMode: 'push' | 'replace' = 'push') => {
+    try {
+      const nextSearch = buildViewSearch(window.location.search, view);
+      if (nextSearch !== window.location.search) {
+        const nextUrl = `${window.location.pathname}${nextSearch}${window.location.hash}`;
+        if (historyMode === 'push') {
+          window.history.pushState({ view }, '', nextUrl);
+        } else {
+          window.history.replaceState({ view }, '', nextUrl);
+        }
+      }
+    } catch {
+      // History API unavailable; in-app navigation still works.
+    }
     React.startTransition(() => {
       setCurrentView(view);
     });
@@ -203,6 +215,11 @@ export default function App() {
   const t = TRANSLATIONS[language];
   
   const [isMobile, setIsMobile] = useState(false);
+  const contentScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    contentScrollRef.current?.scrollTo({ top: 0 });
+  }, [currentView]);
 
   const mobileCoreTabs: ViewState[] = ['dashboard', 'calendar', 'tasks', 'notes'];
   
@@ -321,6 +338,11 @@ export default function App() {
       } else if (sharedDataState) {
         setSharedDataState(null);
       }
+
+      const viewFromUrl = getViewFromSearch(window.location.search);
+      React.startTransition(() => {
+        setCurrentView(viewFromUrl ?? 'dashboard');
+      });
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -439,9 +461,9 @@ export default function App() {
   useEffect(() => {
     // Check for shared link, Web Share Target, or direct view shortcut (Android WebAPK / Windows Taskbar Jump List)
     const urlParams = new URLSearchParams(window.location.search);
-    const viewParam = urlParams.get('view');
-    if (viewParam && getViewMetadata(viewParam, language).title !== 'KampusKit OS') {
-      handleSetView(viewParam as ViewState);
+    const viewParam = getViewFromSearch(window.location.search);
+    if (viewParam) {
+      handleSetView(viewParam, 'replace');
     }
 
     // Web Share Target PWA handling (?shared=1&share_title=...&share_text=...&share_url=...)
@@ -471,10 +493,13 @@ export default function App() {
         });
       }
 
-      // Clean URL without reloading so refresh doesn't trigger modal again
+      // Clean share params without dropping the active view
       try {
-        const cleanPath = window.location.pathname;
-        window.history.replaceState({}, document.title, cleanPath);
+        const cleanUrl = new URL(window.location.href);
+        ['shared', 'share_title', 'share_text', 'share_url', 'title', 'text', 'url'].forEach(param => {
+          cleanUrl.searchParams.delete(param);
+        });
+        window.history.replaceState({}, document.title, `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
       } catch {
         // Fallback ignore
       }
@@ -742,7 +767,7 @@ export default function App() {
       case 'gym': return <GymTracker />;
       case 'invoice': return <InvoiceGenerator />;
       case 'dashboard': return <Dashboard tasks={tasks} courses={courses} notes={notes} books={books} setView={handleSetView} />;
-      case 'course-hub': return <React.Suspense fallback={<div className="flex h-full items-center justify-center"><div className="animate-pulse text-zinc-500 font-bold">Memuat Hub Mata Kuliah...</div></div>}><CourseHub onNavigateToView={handleSetView} onLaunchFocus={() => handleSetView('focus')} /></React.Suspense>;
+      case 'course-hub': return <React.Suspense fallback={<div className="flex h-full items-center justify-center"><div className="animate-pulse text-zinc-500 font-bold">Memuat Hub Mata Kuliah...</div></div>}><CourseHub setView={handleSetView} /></React.Suspense>;
       case 'planner': return <React.Suspense fallback={<div className="flex h-full items-center justify-center"><div className="animate-pulse text-zinc-500 font-bold">Memuat Daily Planner...</div></div>}><DailyPlanner onNavigateToView={handleSetView} onLaunchFocus={() => handleSetView('focus')} /></React.Suspense>;
       case 'curriculum': return <React.Suspense fallback={<div className="flex h-full items-center justify-center"><div className="animate-pulse text-zinc-500 font-bold">Memuat Kurikulum & Mode Belajar...</div></div>}><CurriculumHub onNavigateToView={handleSetView} onAddTask={handleAddTask} onAddNote={handleAddNote} /></React.Suspense>;
       case 'location': return <React.Suspense fallback={<div className="flex h-full items-center justify-center"><div className="animate-pulse text-zinc-500 font-bold">Memuat Location Tracker...</div></div>}><LocationTracker /></React.Suspense>;
@@ -840,6 +865,10 @@ export default function App() {
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         isSidebarCollapsed={isSidebarCollapsed}
         setIsSidebarCollapsed={setIsSidebarCollapsed}
+        onOpenBackgroundSettings={() => {
+          audioService.playAmbientClick();
+          setIsBgModalOpen(true);
+        }}
       />
       
       {/* Main Workspace Frame */}
@@ -850,79 +879,51 @@ export default function App() {
         onTouchEnd={onTouchEnd}
       >
         {/* Ambient Top Glow */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none z-10"></div>
+        <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-primary/[0.06] to-transparent pointer-events-none z-10"></div>
 
         {/* 📱 MOBILE (HP) TOP HEADER BAR */}
         {isMobile && (
-          <header className="flex-shrink-0 h-14 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 px-4 flex items-center justify-between z-20">
+          <header className="flex-shrink-0 h-14 bg-zinc-950/85 backdrop-blur-xl border-b border-white/[0.06] px-3.5 flex items-center justify-between z-20">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 border border-primary/20">
+              <div className="w-8 h-8 rounded-xl bg-primary/12 text-primary flex items-center justify-center flex-shrink-0 border border-primary/20">
                 <ActiveIcon size={16} />
               </div>
-              <span className="font-bold text-sm text-white truncate">{activeMeta.title}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Background GPS Indicator Badge */}
+              <span className="font-semibold text-[15px] text-white truncate tracking-tight">{activeMeta.title}</span>
               {isGpsActive && currentView !== 'location' && (
                 <button
                   onClick={() => handleSetView('location')}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/25 active:scale-95 transition-all shadow-sm"
-                  title="Pelacakan GPS aktif di latar belakang. Klik untuk membuka peta lokasi."
+                  className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[10px] font-bold text-emerald-300 flex-shrink-0 active:scale-95 transition-transform"
+                  title="GPS aktif di latar belakang. Klik untuk membuka peta."
+                  aria-label="GPS aktif"
                 >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span className="text-[10px] font-mono font-bold">GPS Live</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Live
                 </button>
               )}
+            </div>
 
-              {/* In-App PWA Install Trigger */}
-              <PWAInstallButton variant="icon-only" />
-
-              {/* Language Switch */}
-              <button
-                onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
-                className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono font-bold text-zinc-300 hover:text-white transition-all active:scale-95"
-                title={language === 'id' ? 'Ganti ke English' : 'Switch to Indonesian'}
-              >
-                {language.toUpperCase()}
-              </button>
-
-              <button
-                onClick={() => {
-                  audioService.playAmbientClick();
-                  setIsBgModalOpen(true);
-                }}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-emerald-400 active:scale-95 transition-all"
-                aria-label="Izin Background & Baterai HP"
-                title="Izin Background & Baterai HP"
-              >
-                <ShieldCheck size={16} className="text-emerald-400" />
-              </button>
-
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsCommandPaletteOpen(true)}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 active:scale-95 transition-all"
+                className="w-10 h-10 flex items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] active:scale-95 transition-all"
                 aria-label="Cari Fitur"
                 title="Cari Fitur"
               >
-                <Search size={16} />
+                <Search size={18} />
               </button>
 
               <button
                 onClick={() => handleSetView('ai-chat')}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/20 text-primary border border-primary/30 active:scale-95 transition-all"
+                className="w-10 h-10 flex items-center justify-center rounded-xl text-primary bg-primary/10 hover:bg-primary/15 border border-primary/20 active:scale-95 transition-all"
                 aria-label="AI Assistant"
                 title="AI Assistant"
               >
-                <Bot size={16} />
+                <Bot size={18} />
               </button>
 
               <button
                 onClick={() => handleSetView('profile')}
-                className="w-8 h-8 rounded-full bg-zinc-800 border border-primary/40 overflow-hidden relative active:scale-95 transition-all"
+                className="w-9 h-9 ml-0.5 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative active:scale-95 transition-all"
                 aria-label="Profil"
               >
                 {userProfile?.photo ? (
@@ -939,61 +940,78 @@ export default function App() {
 
         {/* 💻 DESKTOP (LAPTOP) TOP BREADCRUMB & UTILITY BAR */}
         {!isMobile && (
-          <header className="flex-shrink-0 h-14 border-b border-white/5 px-6 xl:px-8 flex items-center justify-between z-20 bg-zinc-950/40 backdrop-blur-md">
+          <header className="flex-shrink-0 h-14 border-b border-white/[0.06] px-6 xl:px-8 flex items-center justify-between z-20 bg-zinc-950/50 backdrop-blur-md">
             {/* Left: Breadcrumbs */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-zinc-500 font-medium">{activeMeta.category}</span>
-              <ChevronRight size={12} className="text-zinc-600" />
-              <div className="flex items-center gap-1.5 font-bold text-white">
-                <ActiveIcon size={14} className="text-primary" />
-                <span>{activeMeta.title}</span>
+            <div className="flex items-center gap-2 text-xs min-w-0">
+              <span className="text-zinc-500 font-medium text-[10px] uppercase tracking-wider hidden lg:inline">{activeMeta.category}</span>
+              <ChevronRight size={12} className="text-zinc-700 hidden lg:inline" />
+              <div className="flex items-center gap-1.5 font-semibold text-zinc-100 truncate">
+                <ActiveIcon size={14} className="text-primary flex-shrink-0" />
+                <span className="truncate text-[13px]">{activeMeta.title}</span>
               </div>
             </div>
 
-            {/* Right: Quick Tools & Scholar Status */}
-            <div className="flex items-center gap-3">
-              {/* Online / Offline Status Badge */}
+            {/* Right: Core utilities */}
+            <div className="flex items-center gap-2">
+              {/* Online / Offline status */}
               {!isOnline ? (
-                <div 
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium animate-pulse"
+                <div
+                  className="flex h-9 items-center gap-1.5 rounded-xl border border-amber-500/25 bg-amber-500/10 px-2.5 text-[11px] font-medium text-amber-300"
                   title={language === 'en' ? 'App running in offline mode. Data stored locally on device.' : 'Aplikasi berjalan dalam mode offline. Data tersimpan lokal di perangkat.'}
                 >
                   <WifiOff size={13} className="text-amber-400 flex-shrink-0" />
-                  <span className="hidden sm:inline">{language === 'en' ? 'Offline (Local)' : 'Offline (Lokal)'}</span>
+                  <span className="hidden xl:inline">{language === 'en' ? 'Offline' : 'Offline'}</span>
                 </div>
               ) : (
-                <div 
-                  className="hidden md:flex items-center gap-1 px-2 py-1 rounded-xl text-[11px] text-emerald-400/80 bg-emerald-500/5 border border-emerald-500/10"
+                <div
+                  className="hidden md:flex h-9 items-center gap-1.5 rounded-xl border border-emerald-500/15 bg-emerald-500/[0.06] px-2.5 text-[11px] font-medium text-emerald-400"
                   title={language === 'en' ? 'Connected to internet & synchronized' : 'Terhubung ke internet & tersinkronisasi'}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-ping"></span>
-                  <span className="text-[10px] font-medium text-emerald-400">Online</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                  <span className="hidden xl:inline">{language === 'en' ? 'Synced' : 'Tersinkron'}</span>
                 </div>
               )}
 
-              {/* Background GPS Indicator Badge */}
+              {/* Background GPS indicator */}
               {isGpsActive && currentView !== 'location' && (
                 <button
                   onClick={() => handleSetView('location')}
-                  className="flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition-all shadow-sm"
+                  className="flex h-9 items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-2.5 text-[11px] font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/15"
                   title={language === 'en' ? 'Real-time GPS active in background. Click to open live map.' : 'GPS Real-time aktif di latar belakang. Klik untuk membuka peta lokasi.'}
                 >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span className="text-[11px] font-mono">{language === 'en' ? 'Live GPS Active' : 'GPS Latar Belakang Aktif'}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="hidden xl:inline">{language === 'en' ? 'Live GPS' : 'GPS Live'}</span>
                 </button>
               )}
 
-              {/* In-App Cross-Platform PWA Install Button */}
-              <PWAInstallButton variant="compact" showInstalledBadge={true} />
+              {/* Search */}
+              <button
+                onClick={() => setIsCommandPaletteOpen(true)}
+                className="flex h-9 items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/[0.08] hover:text-white"
+                title={language === 'en' ? 'Quick Search (⌘K)' : 'Cari Cepat (⌘K)'}
+              >
+                <Search size={15} />
+                <span className="hidden xl:inline">{language === 'en' ? 'Search' : 'Cari'}</span>
+                <kbd className="hidden lg:inline rounded-md border border-white/10 bg-black/30 px-1.5 py-0.5 font-mono text-[10px] text-zinc-500">
+                  ⌘K
+                </kbd>
+              </button>
 
-              {/* Bilingual Segmented Switcher */}
-              <div className="flex items-center rounded-xl bg-white/[0.04] p-0.5 border border-white/[0.08] text-[11px] font-mono">
+              {/* AI Assistant */}
+              <button
+                onClick={() => handleSetView('ai-chat')}
+                className="flex h-9 items-center gap-1.5 rounded-xl border border-primary/25 bg-primary/10 px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/15"
+                title="Buka AI Assistant"
+              >
+                <Bot size={15} />
+                <span className="hidden xl:inline">AI</span>
+              </button>
+
+              {/* Language */}
+              <div className="flex h-9 items-center rounded-xl border border-white/[0.06] bg-white/[0.03] p-0.5 text-[11px] font-mono">
                 <button
                   onClick={() => setLanguage('id')}
-                  className={`px-2 py-1 rounded-lg font-bold transition-all ${
+                  className={`px-2 py-1.5 rounded-lg font-bold transition-all ${
                     language === 'id'
                       ? 'bg-primary text-white shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
@@ -1004,7 +1022,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setLanguage('en')}
-                  className={`px-2 py-1 rounded-lg font-bold transition-all ${
+                  className={`px-2 py-1.5 rounded-lg font-bold transition-all ${
                     language === 'en'
                       ? 'bg-primary text-white shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
@@ -1015,56 +1033,23 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Background Runner & Battery Settings */}
-              <button
-                onClick={() => {
-                  audioService.playAmbientClick();
-                  setIsBgModalOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-zinc-400 hover:text-emerald-300 text-xs font-medium transition-all"
-                title={language === 'en' ? 'Background Running & Battery Optimization' : 'Izin Berjalan di Latar Belakang & Baterai HP'}
+              {/* Streak */}
+              <div
+                className="flex h-9 items-center gap-1.5 rounded-xl border border-orange-500/20 bg-orange-500/[0.08] px-2.5 text-xs font-bold text-orange-300"
+                title={language === 'en' ? 'Daily streak' : 'Streak harian'}
               >
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <span className="hidden xl:inline">{language === 'en' ? 'Background Sync' : 'Izin Background'}</span>
-              </button>
-
-              {/* Quick Search Button */}
-              <button
-                onClick={() => setIsCommandPaletteOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-zinc-400 hover:text-white text-xs font-medium transition-all"
-                title={language === 'en' ? 'Quick Search (⌘K)' : 'Cari Cepat (⌘K)'}
-              >
-                <Search size={14} className="text-zinc-400" />
-                <span>{language === 'en' ? 'Search features...' : 'Cari Fitur...'}</span>
-                <kbd className="px-1.5 py-0.5 bg-black/40 border border-white/10 rounded text-[10px] font-mono text-zinc-400">
-                  ⌘K
-                </kbd>
-              </button>
-
-              {/* Quick AI Assistant Trigger */}
-              <button
-                onClick={() => handleSetView('ai-chat')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary text-xs font-bold transition-all"
-                title="Buka AI Assistant"
-              >
-                <Bot size={14} />
-                <span>AI Assistant</span>
-              </button>
-
-              {/* Streak Pill */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold font-mono tabular-nums">
-                <Flame size={14} className="animate-pulse" />
-                <span>{userProfile?.streak || 0} {language === 'en' ? 'Days' : 'Hari'}</span>
+                <Flame size={14} />
+                <span className="stat-value">{userProfile?.streak || 0}</span>
               </div>
 
-              {/* Level / XP Pill */}
-              <div 
+              {/* Level */}
+              <div
                 onClick={() => handleSetView('profile')}
-                className="flex items-center gap-2 px-3 py-1 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-bold cursor-pointer hover:bg-yellow-500/20 transition-colors font-mono tabular-nums"
+                className="flex h-9 items-center gap-1.5 rounded-xl border border-yellow-500/20 bg-yellow-500/[0.08] px-2.5 text-xs font-bold text-yellow-300 cursor-pointer transition-colors hover:bg-yellow-500/15"
                 title="Buka Profil & Lencana"
               >
                 <Crown size={14} />
-                <span>Lvl {userProfile?.level || 1}</span>
+                <span className="stat-value">Lvl {userProfile?.level || 1}</span>
               </div>
             </div>
           </header>
@@ -1086,7 +1071,7 @@ export default function App() {
         )}
         
         {/* Main Dynamic View Content */}
-        <div className={`flex-1 overflow-y-auto custom-scrollbar ${isMobile ? 'pt-3 pb-28 px-3.5 sm:px-6' : 'p-6 xl:p-8'} max-w-[1680px] mx-auto w-full relative`}>
+        <div ref={contentScrollRef} className={`flex-1 overflow-y-auto custom-scrollbar ${isMobile ? 'pt-4 pb-36 px-3.5 sm:px-6' : 'px-6 py-6 xl:px-8 xl:py-8'} max-w-[1680px] mx-auto w-full relative`}>
            <React.Suspense fallback={
              <div className="flex h-full w-full min-h-[300px] items-center justify-center">
                <div className="flex flex-col items-center gap-3">

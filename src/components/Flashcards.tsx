@@ -85,8 +85,8 @@ export const Flashcards: React.FC = () => {
 
   const handleFileSelect = (file: File) => {
     if (!file) return;
-    if (file.size > 25 * 1024 * 1024) {
-      alert("Ukuran file maksimal adalah 25MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Ukuran file maksimal adalah 10MB.");
       return;
     }
 

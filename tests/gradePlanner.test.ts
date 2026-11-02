@@ -14,6 +14,7 @@ describe('gradePlanner service', () => {
       courseId: 'c1',
       targetLetterGrade: 'A',
       targetScore: 80,
+      updatedAt: Date.now(),
       components: [
         { id: 'c1', name: 'Tugas', weight: 20, maxScore: 100, achievedScore: 80, isCompleted: true }, // 80% * 25% = 20 pts
         { id: 'c2', name: 'UTS', weight: 20, maxScore: 100, achievedScore: 80, isCompleted: true },   // 80% * 25% = 20 pts
@@ -41,6 +42,7 @@ describe('gradePlanner service', () => {
       courseId: 'c1',
       targetLetterGrade: 'A',
       targetScore: 90,
+      updatedAt: Date.now(),
       components: [
         { id: 'c1', name: 'Tugas', weight: 30, maxScore: 100, achievedScore: 40, isCompleted: true },
         { id: 'c2', name: 'UAS', weight: 40, maxScore: 100, isCompleted: false },
@@ -67,6 +69,7 @@ describe('gradePlanner service', () => {
       courseId: 'c1',
       targetLetterGrade: 'B',
       targetScore: 70,
+      updatedAt: Date.now(),
       components: [
         { id: 'c1', name: 'Tugas', weight: 50, maxScore: 100, achievedScore: 90, isCompleted: true },
         { id: 'c2', name: 'UTS', weight: 30, maxScore: 100, achievedScore: 90, isCompleted: true },
@@ -95,6 +98,7 @@ describe('gradePlanner service', () => {
       courseId: 'c1',
       targetLetterGrade: 'A',
       targetScore: 85,
+      updatedAt: Date.now(),
       components: [
         { id: 'c1', name: 'Tugas', weight: 20, maxScore: 100, achievedScore: 85, isCompleted: true },
         { id: 'c2', name: 'Kuis', weight: 10, maxScore: 100, achievedScore: 80, isCompleted: true },

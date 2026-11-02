@@ -122,7 +122,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [hour, language]);
 
   // Single Focal Point Engine (Priority Engine)
-  const focalPoint = useMemo(() => {
+  type FocalPoint =
+    | { type: 'CLASS_NOW'; data: Course; timeLeft: string }
+    | { type: 'CLASS_SOON'; data: Course }
+    | { type: 'TASK_URGENT'; data: Task }
+    | { type: 'FREE'; data: null };
+
+  const focalPoint = useMemo<FocalPoint>(() => {
     const hh = currentTime.getHours().toString().padStart(2, '0');
     const mm = currentTime.getMinutes().toString().padStart(2, '0');
     const nowTimeStr = `${hh}:${mm}`;
@@ -265,12 +271,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-none">
-            {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-300 to-cyan-300">{userProfile?.customTitle || (userProfile?.name || 'Mahasiswa').split(' ')[0]}</span>.
+            {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-300">{userProfile?.customTitle || (userProfile?.name || 'Mahasiswa').split(' ')[0]}</span>.
           </h1>
         </div>
 
         {/* Scholar Level HUD */}
-        <div className="flex items-center gap-4 bg-zinc-900/60 border border-white/[0.08] px-4 py-2.5 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-4 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-2.5">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-yellow-500/15 text-yellow-400 flex items-center justify-center font-bold">
               <Crown size={16} />
@@ -321,8 +327,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* ============================================================ */}
       {/* 2. PRIMARY FOCAL ANCHOR (Single Elevation Principle)         */}
       {/* ============================================================ */}
-      <div className="relative group overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-zinc-900 via-zinc-900/90 to-zinc-950 p-6 md:p-10 shadow-2xl transition-all">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative group overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-zinc-900 via-zinc-900/90 to-zinc-950 p-6 md:p-8 shadow-[0_24px_70px_-36px_rgba(0,0,0,0.95)] transition-all">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-primary/[0.07] rounded-full blur-3xl pointer-events-none" />
 
         <div className="space-y-6">
           {/* Focal Status Kicker (Unboxed text) */}
@@ -451,9 +457,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 3. TODAY'S TRAJECTORY (Class Schedule Timeline)              */}
       {/* ============================================================ */}
       {todayTimeline.length > 0 && (
-        <div className="p-6 rounded-3xl bg-zinc-900/60 border border-white/[0.08] space-y-4">
+        <div className="p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.07] space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+            <h3 className="section-label">
               {t.todayFlow}
             </h3>
             <span className="text-xs text-zinc-400 font-mono">
@@ -518,64 +524,39 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* Bento 1: Quick Launch Grid */}
-        <div className="p-6 rounded-3xl bg-zinc-900/70 border border-white/[0.08] flex flex-col justify-between space-y-4">
+        <div className="p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.08] flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+            <h3 className="section-label">
               {t.quickAccess}
             </h3>
             <span className="text-[11px] font-mono text-zinc-400">Workspace</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
-            <button 
-              onClick={() => setView('schedule')} 
-              className="p-3.5 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-white/[0.06] hover:border-blue-500/40 flex flex-col items-center justify-center gap-2 transition-all group"
-            >
-              <Calendar size={20} className="text-zinc-400 group-hover:text-blue-400 transition-colors" />
-              <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white">Jadwal</span>
-            </button>
-            <button 
-              onClick={() => setView('tasks')} 
-              className="p-3.5 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-white/[0.06] hover:border-amber-500/40 flex flex-col items-center justify-center gap-2 transition-all group"
-            >
-              <CheckSquare size={20} className="text-zinc-400 group-hover:text-amber-400 transition-colors" />
-              <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white">Tugas</span>
-            </button>
-            <button 
-              onClick={() => setView('notes')} 
-              className="p-3.5 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-white/[0.06] hover:border-purple-500/40 flex flex-col items-center justify-center gap-2 transition-all group"
-            >
-              <BookOpen size={20} className="text-zinc-400 group-hover:text-purple-400 transition-colors" />
-              <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white">Catatan</span>
-            </button>
-            <button 
-              onClick={() => setView('curriculum')} 
-              className="p-3.5 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-white/[0.06] hover:border-emerald-500/40 flex flex-col items-center justify-center gap-2 transition-all group"
-            >
-              <BookMarked size={20} className="text-zinc-400 group-hover:text-emerald-400 transition-colors" />
-              <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white">Kurikulum</span>
-            </button>
-            <button 
-              onClick={() => setView('flashcards')} 
-              className="p-3.5 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-white/[0.06] hover:border-orange-500/40 flex flex-col items-center justify-center gap-2 transition-all group"
-            >
-              <BrainCircuit size={20} className="text-zinc-400 group-hover:text-orange-400 transition-colors" />
-              <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white">Cards</span>
-            </button>
-            <button 
-              onClick={() => setView('ai-chat')} 
-              className="p-3.5 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-white/[0.06] hover:border-primary/40 flex flex-col items-center justify-center gap-2 transition-all group"
-            >
-              <Bot size={20} className="text-zinc-400 group-hover:text-primary transition-colors" />
-              <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white">AI Bot</span>
-            </button>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { view: 'schedule' as ViewState, icon: Calendar, label: 'Jadwal' },
+              { view: 'tasks' as ViewState, icon: CheckSquare, label: 'Tugas' },
+              { view: 'notes' as ViewState, icon: BookOpen, label: 'Catatan' },
+              { view: 'curriculum' as ViewState, icon: BookMarked, label: 'Kurikulum' },
+              { view: 'flashcards' as ViewState, icon: BrainCircuit, label: 'Cards' },
+              { view: 'ai-chat' as ViewState, icon: Bot, label: 'AI Bot' },
+            ].map(({ view, icon: Icon, label }) => (
+              <button
+                key={view}
+                onClick={() => setView(view)}
+                className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5 transition-colors hover:border-primary/30 hover:bg-white/[0.05]"
+              >
+                <Icon size={20} className="text-zinc-500 transition-colors group-hover:text-primary" />
+                <span className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-white">{label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Bento 2: Universal Curriculum & Study Mode (Flagship Pillar) */}
         <div 
           onClick={() => setView('curriculum')}
-          className="cursor-pointer group p-6 rounded-3xl bg-zinc-900/70 hover:bg-zinc-900 border border-white/[0.08] hover:border-primary/50 transition-all flex flex-col justify-between space-y-4"
+          className="cursor-pointer group p-5 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-white/[0.08] hover:border-primary/50 transition-all flex flex-col justify-between space-y-4"
         >
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs text-zinc-400">
@@ -607,7 +588,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Bento 3: 4-7-8 Breathwork (Nervous System Reset) */}
         <div 
           onClick={handleBreath}
-          className="cursor-pointer p-6 rounded-3xl bg-zinc-900/70 border border-white/[0.08] hover:border-teal-500/40 transition-all relative overflow-hidden flex flex-col justify-between"
+          className="cursor-pointer p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.08] hover:border-teal-500/40 transition-all relative overflow-hidden flex flex-col justify-between"
         >
           {isBreathing ? (
             <div className="absolute inset-0 z-20 bg-zinc-950/90 flex flex-col items-center justify-center text-center p-4 animate-in fade-in">
@@ -645,26 +626,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Bento 4: Philosophical & Stoic Daily Wisdom */}
         <div 
           onClick={() => setView('motivation')}
-          className="cursor-pointer p-6 rounded-3xl bg-zinc-900/70 border border-white/[0.08] hover:border-white/20 transition-all flex flex-col justify-between space-y-4"
+          className="cursor-pointer p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.08] hover:border-white/20 transition-all flex flex-col justify-between space-y-4"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs text-zinc-400 font-mono">
               <span className="text-primary font-bold">{t.dailyWisdom}</span>
-              <span>Marcus Aurelius</span>
+              <span>{randomQuote.source}</span>
             </div>
             <p className="text-sm text-zinc-200 italic leading-relaxed font-serif">
               "{randomQuote.text}"
             </p>
           </div>
           <div className="text-[11px] font-mono text-zinc-400 text-right">
-            — {randomQuote.author}
+            — {randomQuote.source}
           </div>
         </div>
 
         {/* Bento 5: Student Budget (Authentic 50/30/20 Anak Kos Identity) */}
         <div 
           onClick={() => setView('budget')}
-          className="cursor-pointer p-6 rounded-3xl bg-zinc-900/70 border border-white/[0.08] hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-4"
+          className="cursor-pointer p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.08] hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-4"
         >
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-zinc-400 font-mono">
@@ -691,7 +672,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Bento 6: GPS Guardian & Companion (Authentic Original Feature) */}
         <div 
           onClick={() => setView('location')}
-          className="cursor-pointer p-6 rounded-3xl bg-zinc-900/70 border border-white/[0.08] hover:border-rose-500/40 transition-all flex flex-col justify-between space-y-4"
+          className="cursor-pointer p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.08] hover:border-rose-500/40 transition-all flex flex-col justify-between space-y-4"
         >
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-zinc-400 font-mono">

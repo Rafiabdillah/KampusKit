@@ -1485,7 +1485,7 @@ export const LocationTracker: React.FC = () => {
                 {/* Movement state */}
                 <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 mb-2">
                   <span>{pMovement.icon}</span>
-                  <span>{pMovement.text}</span>
+                  <span>{pMovement.label}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1 border-t border-white/5">
@@ -1589,7 +1589,7 @@ export const LocationTracker: React.FC = () => {
                 {/* Movement state */}
                 <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 mb-2">
                   <span>{sMovement.icon}</span>
-                  <span>{sMovement.text}</span>
+                  <span>{sMovement.label}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1 border-t border-white/5">
@@ -2298,20 +2298,16 @@ export const LocationTracker: React.FC = () => {
         onClose={() => setShowGeofenceModal(false)}
         zones={zones}
         onSaveZones={handleSaveZones}
-        currentLocation={
-          (deviceRole === 'primary' ? primaryLocation : secondaryLocation)
-            ? {
-                latitude: (deviceRole === 'primary' ? primaryLocation : secondaryLocation)!.latitude,
-                longitude: (deviceRole === 'primary' ? primaryLocation : secondaryLocation)!.longitude
-              }
-            : undefined
-        }
+        currentLocation={deviceRole === 'primary' ? primaryLocation : secondaryLocation}
+        partnerLocation={deviceRole === 'primary' ? secondaryLocation : primaryLocation}
+        primaryName={primaryName}
+        secondaryName={secondaryName}
       />
 
       {/* Love Ping Fullscreen Heart Animation Overlay */}
       <LovePingOverlay
         isVisible={showLovePingOverlay}
-        onClose={() => setShowLovePingOverlay(false)}
+        onDismiss={() => setShowLovePingOverlay(false)}
         senderName={lovePingSender}
       />
 
